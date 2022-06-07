@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from core.models import email_validator
 
 # Custom User serializer
 class UserCreationSerializer(serializers.ModelSerializer):
@@ -29,7 +28,6 @@ class LoginSerializer(serializers.Serializer):
 	password = serializers.CharField(
 		style={'input_type': 'password'},
 		write_only=True,
-		trim_whitespace=False,
 		max_length=128,
 	)
 	

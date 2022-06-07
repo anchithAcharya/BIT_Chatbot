@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from core.serializers import UserUpdationSerializer
 
 # Student serializer
-class StudentCreationSerializer(serializers.ModelSerializer):
+class StudentDefaultSerializer(serializers.ModelSerializer):
 	id = serializers.CharField(source='user.id')
 	email = serializers.EmailField(source='user.email')
 	name = serializers.CharField(source='user.name')
@@ -41,13 +41,13 @@ class StudentCreationSerializer(serializers.ModelSerializer):
 
 		return super().update(instance, validated_data)
 
-class StudentUpdationSerializer_Student(StudentCreationSerializer):
+
+class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 	password = serializers.CharField(
 		source = 'user.password',
 		style={'input_type': 'password'},
 		write_only=True,
-		trim_whitespace=False,
-		max_length=128,
+		max_length=128
 	)
 
 	class Meta:
@@ -61,7 +61,7 @@ class StudentUpdationSerializer_Student(StudentCreationSerializer):
 	def update(self, instance, validated_data):
 		return super().update(instance, validated_data)
 
-class StudentUpdationSerializer_Admin(StudentCreationSerializer):
+class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
 	email = None
 	phone = None
 

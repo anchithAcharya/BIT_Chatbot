@@ -49,6 +49,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'core.authentication.ExpiringTokenAuthentication',
     ],
+	'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+	'PAGE_SIZE': 1 if TESTING else 25
 }
 
 MIDDLEWARE = [

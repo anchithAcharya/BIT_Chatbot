@@ -2,7 +2,7 @@ from urllib import request
 from rest_framework import viewsets
 from student.models import Student
 from student.serializers import (
-	StudentCreationSerializer,
+	StudentDefaultSerializer,
 	StudentUpdationSerializer_Student,
 	StudentUpdationSerializer_Admin
 )
@@ -30,7 +30,7 @@ from django.core.exceptions import ValidationError
 
 class StudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
-	serializer_class = StudentCreationSerializer
+	serializer_class = StudentDefaultSerializer
 	lookup_field = 'user_id'
 
 	@action(detail=False, methods=['POST'])
@@ -159,6 +159,19 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 			return Response(f"Password for user {user} changed successfully.", status=status.HTTP_200_OK)
 
+
+	def update(self, request, *args, **kwargs):
+		response = super().update(request, *args, **kwargs)
+
+		if response.status_code == status.HTTP_200_OK:
+			try:
+				student = Student.objects.get(user_id=response.data['id'])
+				response.data = StudentDefaultSerializer(student).data
+				return response
+
+			except Student.DoesNotExist: return response
+
+		else: return response
 
 	def get_serializer_class(self):
 		if self.action == 'update' or self.action == 'partial_update':

@@ -1,7 +1,5 @@
-- completely rework updates and partial updates, along with serializers (create serializers with partial=True)
-- pagination for lists
 - links currently sent in email are api links (they immediately fail since no POST data is sent by the user when link is clicked). Change the links to app links once app is ready.
-
+- profile pics
 
 Permissions:
 
