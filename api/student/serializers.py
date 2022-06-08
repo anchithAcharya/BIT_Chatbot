@@ -53,6 +53,7 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 	class Meta:
 		model = Student
 		fields = ('id', 'email', 'name', 'phone', 'password')
+		restricted = ('id', 'branch', 'current_sem')
 		extra_kwargs = {
 			'branch': {'read_only': True, 'required': False},
 			'current_sem': {'read_only': True, 'required': False}
@@ -68,3 +69,4 @@ class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
 	class Meta:
 		model = Student
 		fields = ('id', 'name', 'current_sem', 'branch')
+		restricted = ('id', 'email', 'phone', 'password')

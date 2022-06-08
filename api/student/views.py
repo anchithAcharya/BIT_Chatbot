@@ -161,17 +161,24 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 
 	def update(self, request, *args, **kwargs):
-		response = super().update(request, *args, **kwargs)
+		partial = kwargs.pop('partial', False)
+		instance = self.get_object()
+		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
-		if response.status_code == status.HTTP_200_OK:
-			try:
-				student = Student.objects.get(user_id=response.data['id'])
-				response.data = StudentDefaultSerializer(student).data
-				return response
+		errors = {}
+		for field in getattr(serializer.Meta, 'restricted', []):
+			if field in request.data:
+				errors[field] = "You are not authorized to change this field."
 
-			except Student.DoesNotExist: return response
+		if errors: return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-		else: return response
+		serializer.is_valid(raise_exception=True)
+		updated_instance = serializer.save()
+
+		if getattr(instance, '_prefetched_objects_cache', None):
+			instance._prefetched_objects_cache = {}
+
+		return Response(StudentDefaultSerializer(updated_instance).data)
 
 	def get_serializer_class(self):
 		if self.action == 'update' or self.action == 'partial_update':
