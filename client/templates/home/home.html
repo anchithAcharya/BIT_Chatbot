@@ -1,0 +1,13 @@
+<h1>Welcome to BIT Website!</h1>
+<br>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<ul>
+	<li><a href="{% url 'student' %}">Student</a></li>
+	<li><a href="{% url 'staff' %}">Staff</a></li>
+	<li><a href="{% url 'parent' %}">Parent</a></li>
+	<li><a href="{% url 'admin' %}">Admin</a></li>
+</ul>

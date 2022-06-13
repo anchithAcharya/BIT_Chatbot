@@ -10,3 +10,8 @@ Permissions:
 - password			-					view, update
 - branch			view, update		view
 - current_sem		view, update		view
+
+
+CLIENT:
+
+- admin home page: students, staff and parents
