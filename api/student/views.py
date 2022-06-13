@@ -1,4 +1,3 @@
-from urllib import request
 from rest_framework import viewsets
 from student.models import Student
 from student.serializers import (
@@ -8,8 +7,9 @@ from student.serializers import (
 )
 
 from rest_framework.decorators import action
-from core.serializers import LoginSerializer
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from django.utils import timezone
 from core.authentication import ExpiringTokenAuthentication
@@ -35,55 +35,67 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 	@action(detail=False, methods=['POST'])
 	def login(self, request):
-		serializer = LoginSerializer(data=request.data)
-		if serializer.is_valid():
-			try:
-				if serializer.validated_data.get('id'): user = get_user_model().objects.get(id=serializer.validated_data['id'])
-				else: user = get_user_model().objects.get(email=serializer.validated_data['email'])
+		# get id/email and password
+		id = request.data.get('id')
+		password = request.data.get('password')
 
-			except get_user_model().DoesNotExist:
-				return Response(status=status.HTTP_404_NOT_FOUND)
+		errors = {}
+		if not id: errors['id'] = "User id or email is required."
+		if not password: errors['password'] = "Password is required."
 
-			if not user.check_password(serializer.validated_data['password']):
-				return Response(status=status.HTTP_401_UNAUTHORIZED)
+		if errors: return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-			token, created =  Token.objects.get_or_create(user=user)
+		# get user
+		try:
+			user = get_user_model().objects.get(Q(id=id) | Q(email=id))
 
-			utc_now = timezone.now()    
-			if not created and token.created < utc_now - ExpiringTokenAuthentication.validity_time:
-				token.delete()
-				token = Token.objects.create(user=user)
-				token.created = timezone.now()
-				token.save()
+		except get_user_model().DoesNotExist:
+			return Response({'id': "User with the given id/email does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
-			response_data = {'token': token.key}
-			return Response(response_data, content_type="application/json")
+		# authenticate user
+		user = authenticate(username=user.id, password=password)
 
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		if not user:
+			return Response({'password': "Wrong credentials provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+		# log user in
+		login(request, user)
+
+		# create token
+		token, created = Token.objects.get_or_create(user=user)
+
+		utc_now = timezone.now()    
+		if not created and token.created < utc_now - ExpiringTokenAuthentication.validity_time:
+			token.delete()
+			token = Token.objects.create(user=user)
+			token.created = timezone.now()
+			token.save()
+
+		# set token as cookie and return response
+		response = Response({'token': token.key}, content_type="application/json")
+		response.set_cookie('token', token.key, expires=utc_now+ExpiringTokenAuthentication.validity_time)
+
+		return response
 
 	@action(detail=False, methods=['POST'])
 	def logout(self, request):
 		request.user.auth_token.delete()
-		return Response(status=status.HTTP_200_OK)
+		return Response({'success': "Logged out successfully"}, status=status.HTTP_200_OK)
 
 	@action(detail=False, methods=['POST'])
 	def change_password(self, request):
-		# validate data
-		data = request.data.copy()
-		data['password'] = 'DummyPassword123'
-		serializer = LoginSerializer(data=data)
+		# get id or email
+		id = request.data.get('id')
 
-		if not serializer.is_valid():
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+		if not id:
+			return Response({'id': "User id or email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
 		# get user
 		try:
-			if serializer.validated_data.get('id'): user = get_user_model().objects.get(id=serializer.validated_data['id'])
-			else: user = get_user_model().objects.get(email=serializer.validated_data['email'])
+			user = get_user_model().objects.get(Q(id=id) | Q(email=id))
 
 		except get_user_model().DoesNotExist:
-			return Response(status=status.HTTP_404_NOT_FOUND)
+			return Response({'id': "User with the given id/email does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
 
 		# generate password reset request
