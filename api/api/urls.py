@@ -19,9 +19,6 @@ from django.urls import path, include
 from student.urls import router as student_router
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('api/admin/', admin.site.urls),
     path('api/', include(student_router.urls)),
 ]
-
-# for url in student_router.urls:
-# 	print(url)
