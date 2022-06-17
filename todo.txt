@@ -13,5 +13,3 @@ Permissions:
 
 
 CLIENT:
-
-- admin home page: students, staff and parents

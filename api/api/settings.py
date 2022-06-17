@@ -148,3 +148,6 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'superuser.bit@gmail.com'
 EMAIL_HOST_PASSWORD = secrets.EMAIL_HOST_PASSWORD
+
+MEDIA_ROOT = Path(BASE_DIR) / 'media'
+MEDIA_URL = '/media/'

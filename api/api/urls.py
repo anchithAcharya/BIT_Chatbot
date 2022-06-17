@@ -18,7 +18,10 @@ from django.urls import path, include
 
 from student.urls import router as student_router
 
+from django.conf import settings
+from django.conf.urls.static import  static
+
 urlpatterns = [
     path('api/admin/', admin.site.urls),
     path('api/', include(student_router.urls)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
