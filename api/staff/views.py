@@ -1,9 +1,9 @@
 from rest_framework import viewsets
-from student.models import Student
-from student.serializers import (
-	StudentDefaultSerializer,
-	StudentUpdationSerializer_Student,
-	StudentUpdationSerializer_Admin
+from staff.models import Staff
+from staff.serializers import (
+	StaffDefaultSerializer,
+	StaffUpdationSerializer_Staff,
+	StaffUpdationSerializer_Admin
 )
 
 from rest_framework.decorators import action
@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from core.permissions import isAdmin, isCreator, isStaff
+from core.permissions import isAdmin, isCreator
 
 from django.conf import settings
 from core.models import PasswordResetRequest
@@ -27,12 +27,10 @@ from django.urls import reverse
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-from academics.serializers import MarksSerializer, AttendanceSerializer
 
-
-class StudentViewSet(viewsets.ModelViewSet):
-	queryset = Student.objects.all()
-	serializer_class = StudentDefaultSerializer
+class StaffViewSet(viewsets.ModelViewSet):
+	queryset = Staff.objects.all()
+	serializer_class = StaffDefaultSerializer
 	lookup_field = 'user_id'
 
 
@@ -40,20 +38,18 @@ class StudentViewSet(viewsets.ModelViewSet):
 		'login': AllowAny,
 		'logout': IsAuthenticated,
 		'change_password': AllowAny,
-		'password_reset': AllowAny,
-		'marks': isAdmin|isCreator|isStaff,
-		'attendance': isAdmin|isCreator|isStaff
+		'password_reset': AllowAny
 	}
 
 	detail_permissions = {
-		'GET': isAdmin|isCreator|isStaff,
+		'GET': isAdmin|isCreator,
 		'PUT': isAdmin|isCreator,
 		'PATCH': isAdmin|isCreator,
 		'DELETE': isAdmin
 	}
 
 	non_detail_permissions = {
-		'GET': isAdmin|isStaff,
+		'GET': isAdmin,
 		'POST': isAdmin
 	}
 
@@ -137,7 +133,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 		# send email
 		if user.is_superuser: type = "Admin"
-		elif user.is_staff: type = "Student"
+		elif user.is_staff: type = "Staff"
 		else: type = "Staff"
 	
 		change_password_url = request.get_host() + reverse(f"{self.basename}-{self.change_password.url_name}")
@@ -197,20 +193,6 @@ class StudentViewSet(viewsets.ModelViewSet):
 			return Response(f"Password for user {user} changed successfully.", status=status.HTTP_200_OK)
 
 
-	@action(detail=True, methods=['GET'])
-	def marks(self, request, user_id=None):
-		student = Student.objects.get(user_id=user_id)
-		marks = student.marks.filter(subject__semester=student.current_sem)
-		marks = [MarksSerializer(mark).data for mark in marks]
-		return Response(marks, status=status.HTTP_200_OK)
-
-	@action(detail=True, methods=['GET'])
-	def attendance(self, request, user_id=None):
-		student = Student.objects.get(user_id=user_id)
-		attendance = student.marks.filter(subject__semester=student.current_sem)
-		attendance = [AttendanceSerializer(att).data for att in attendance]
-		return Response(attendance, status=status.HTTP_200_OK)
-
 	def create(self, request, *args, **kwargs):
 		try:
 			return super().create(request, *args, **kwargs)
@@ -236,7 +218,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 		if getattr(instance, '_prefetched_objects_cache', None):
 			instance._prefetched_objects_cache = {}
 
-		return Response(StudentDefaultSerializer(updated_instance).data)
+		return Response(StaffDefaultSerializer(updated_instance).data)
 
 	def destroy(self, request, *args, **kwargs):
 		instance = self.get_object()
@@ -247,9 +229,9 @@ class StudentViewSet(viewsets.ModelViewSet):
 	def get_serializer_class(self):
 		if self.action == 'update' or self.action == 'partial_update':
 			if self.request.user.id == self.kwargs['user_id']:
-				return StudentUpdationSerializer_Student
+				return StaffUpdationSerializer_Staff
 
-			else: return StudentUpdationSerializer_Admin
+			else: return StaffUpdationSerializer_Admin
 
 		return super().get_serializer_class()
 

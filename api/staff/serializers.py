@@ -1,4 +1,4 @@
-from .models import Student
+from .models import Staff
 from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
@@ -8,16 +8,18 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 import os
 
-# Student serializer
-class StudentDefaultSerializer(serializers.ModelSerializer):
+# Staff serializer
+class StaffDefaultSerializer(serializers.ModelSerializer):
 	id = serializers.CharField(source='user.id')
 	email = serializers.EmailField(source='user.email')
 	name = serializers.CharField(source='user.name')
-	current_sem = serializers.IntegerField(required=False, default=1)
 
 	class Meta:
-		model = Student
-		fields = ('id', 'image', 'email', 'name', 'current_sem', 'branch', 'phone')
+		model = Staff
+		fields = ('id', 'image', 'email', 'name', 'branch', 'phone')
+		extra_kwargs = {
+			'image': {'required': False},
+		}
 
 	def create(self, validated_data):
 		user = get_user_model().objects.create_user(
@@ -26,11 +28,10 @@ class StudentDefaultSerializer(serializers.ModelSerializer):
 			name=validated_data['user']['name']
 		)
 
-		return Student.objects.create(
+		return Staff.objects.create(
 			user=user,
 			image=validated_data.get('image'),
-			current_sem=validated_data.get('current_sem'),
-			branch=validated_data.get('branch'))
+			branch=validated_data['branch'])
 
 	def update(self, instance, validated_data):
 		if validated_data.get('user'):
@@ -47,7 +48,7 @@ class StudentDefaultSerializer(serializers.ModelSerializer):
 		return super().update(instance, validated_data)
 
 
-class StudentUpdationSerializer_Student(StudentDefaultSerializer):
+class StaffUpdationSerializer_Staff(StaffDefaultSerializer):
 	password = serializers.CharField(
 		source = 'user.password',
 		style={'input_type': 'password'},
@@ -56,30 +57,28 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 	)
 
 	class Meta:
-		model = Student
+		model = Staff
 		fields = ('id', 'image', 'email', 'name', 'phone', 'password')
-		restricted = ('id', 'branch', 'current_sem')
+		restricted = ('id', 'branch')
 		extra_kwargs = {
-			'branch': {'read_only': True, 'required': False},
-			'current_sem': {'read_only': True, 'required': False},
-			'image': {'required': False}
+			'branch': {'read_only': True, 'required': False}
 		}
 
 	def update(self, instance, validated_data):
 		return super().update(instance, validated_data)
 
-class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
+class StaffUpdationSerializer_Admin(StaffDefaultSerializer):
 	email = None
 	phone = None
 
 	class Meta:
-		model = Student
-		fields = ('id', 'image', 'name', 'current_sem', 'branch')
+		model = Staff
+		fields = ('id', 'image', 'name', 'branch')
 		restricted = ('id', 'email', 'phone', 'password')
 
 
 # delete old image when adding new image
-@receiver(pre_save, sender=Student)
+@receiver(pre_save, sender=Staff)
 def delete_old_image(sender, instance, **kwargs):
     # on creation, signal callback won't be triggered 
     if instance._state.adding and not instance.pk:

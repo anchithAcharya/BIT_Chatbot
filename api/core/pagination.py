@@ -8,14 +8,14 @@ class PageNumberPaginationWithCount(pagination.PageNumberPagination):
 		response.data['total_pages'] = self.page.paginator.num_pages
 
 		response.data.pop('next', None)
-		response.data.pop('prev', None)
+		response.data.pop('previous', None)
 
 		try:
 			response.data['next_page_no'] = self.page.next_page_number()
-		except EmptyPage: pass
+		except EmptyPage: response.data['next_page_no'] = None
 
 		try:
 			response.data['prev_page_no'] = self.page.previous_page_number()
-		except EmptyPage: pass
+		except EmptyPage: response.data['prev_page_no'] = None
 
 		return response

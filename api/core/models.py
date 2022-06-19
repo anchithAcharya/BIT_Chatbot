@@ -2,6 +2,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.conf import settings
 from validate_email import validate_email
 
 
@@ -13,9 +14,9 @@ import binascii
 
 # field validators
 def email_validator(value):
-
-	if not validate_email(value):
-		raise ValidationError('Invalid email address.')
+	if not settings.TESTING:
+		if not validate_email(value):
+			raise ValidationError('Invalid email address.')
 
 def name_validator(value):
 	import re
@@ -33,7 +34,7 @@ class UserManager(BaseUserManager):
 
 		user.save()
 		return user
-	
+
 	def create_superuser(self, id, email, name, password, **extra_fields):
 		# extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_superuser', True)
@@ -62,6 +63,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 	USERNAME_FIELD = 'id'
 	EMAIL_FIELD = 'email'
 	REQUIRED_FIELDS = ['email', 'name']
+
+	def __str__(self):
+		return 'User ' + self.id
 
 	def save(self, *args, **kwargs):
 		self.full_clean()
