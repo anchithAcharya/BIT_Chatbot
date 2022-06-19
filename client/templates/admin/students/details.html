@@ -1,0 +1,25 @@
+<h1>Student Details</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'admin_students_edit' student.id %}", method="post">
+	{% csrf_token %}
+	ID: {{ student.id }}<br>
+	Name: {{ form.name }}<br>
+	Email: {{ student.email }}<br>
+	Phone: {{ student.phone }}<br>
+	Branch: {{ form.branch }}<br>
+	Current Semester: {{ form.current_sem }}<br>
+	<input type="submit" value="Edit"><br><br>
+	<button type="submit" formaction="{% url 'admin_students_delete' student.id %}">Delete Student</button>
+</form>
+
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            {{ error }}<br>
+        {% endfor %}
+    {% endfor %}
+{% endif %}

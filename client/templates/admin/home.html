@@ -1,0 +1,15 @@
+<h1>Admin Home</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<ul>
+	<li><a href="{% url 'admin_students' %}">Manage students</a></li>
+	<li><a href="#">Manage staff</a></li>
+	<li><a href="#">Manage parents</a></li>
+	{% comment %}
+	<li><a href="{% url 'staff' %}">Manage staff</a></li>
+	<li><a href="{% url 'parents' %}">Manage parents</a></li>
+	{% endcomment %}
+</ul>
