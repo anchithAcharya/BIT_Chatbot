@@ -1,4 +1,8 @@
-from api import admin as admin_api
+import sys
+sys.path.append(r"D:\Productivity\Code\Chatbot")
+
+import client.admin as admin_api
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import LoginForm, EditStudentForm
@@ -39,15 +43,15 @@ def login(request):
 			elif status_code == 401:
 				messages.error(request, response.get('password', 'Authentication failed.'))
 				ret = redirect('admin_login')
-				ret.cookies['form_id'] = form.cleaned_data.get('id')
-				ret.cookies['password'] = form.cleaned_data.get('password')
+				ret.set_cookie('form_id', form.cleaned_data.get('id'))
+				ret.set_cookie('password', form.cleaned_data.get('password'))
 				return ret
 
 			elif status_code == 404:
 				messages.error(request, response.get('id', 'User with given id/email not found.'))
 				ret = redirect('admin_login')
-				ret.cookies['form_id'] = form.cleaned_data.get('id')
-				ret.cookies['form_password'] = form.cleaned_data.get('password')
+				ret.set_cookie('form_id', form.cleaned_data.get('id'))
+				ret.set_cookie('form_password', form.cleaned_data.get('password'))
 				return ret
 
 			elif status_code == 400:
@@ -58,7 +62,7 @@ def login(request):
 
 		else:
 			for field in form.errors:
-				messages.error(request, form.errors[field])
+				messages.error(request, field + ': ' + form.errors[field])
 
 			return redirect('admin_login')
 
@@ -92,6 +96,104 @@ def logout(request):
 
 def logout_success(request):
 	return render(request, 'admin/logout_success.html')
+
+def forgot_password(request):
+	if request.method == 'POST':
+		form = LoginForm({'id': request.POST.get('id'), 'password': 'TestPassword123!'})
+
+		if form.is_valid():
+			response, status_code = admin_api.change_password(request.POST.get('id'))
+
+			if status_code == 200:
+				messages.success(request, response.get('success', 'Password reset mail sent to email associated with this account.'))
+				ret = redirect('admin_login')
+
+				ret.cookies.pop('fp_form_id', None)
+				return ret
+
+			elif status_code == 404:
+				messages.error(request, response.get('id', 'User with given id/email not found.'))
+				ret = redirect('admin_forgot_password')
+				ret.set_cookie('fp_form_id', form.cleaned_data.get('id'))
+				return ret
+
+			elif status_code == 400:
+				for field in response:
+					messages.error(request, response[field])
+
+				return redirect('admin_forgot_password')
+
+		else:
+			for field in form.errors:
+				messages.error(request, form.errors[field])
+
+			return redirect('admin_forgot_password')
+
+	else:
+		params = {'form': LoginForm({
+			'id': request.COOKIES.get('fp_form_id'),
+		})}
+
+		request.COOKIES.pop('fp_form_id', None)
+
+		return render(request, 'admin/forgot_password.html', params)
+
+def reset_password(request):
+	if request.method == 'POST':
+		password_reset_token = request.GET.get('token')
+		new_password = request.POST.get('password')
+
+		if not password_reset_token:
+			messages.error(request, 'Password reset token required.')
+			return redirect('admin_forgot_password')
+
+		form = LoginForm({'id': '101', 'password': new_password})
+
+		if form.is_valid():
+			response, status_code = admin_api.reset_password(password_reset_token)
+
+			if status_code == 200:
+				messages.success(request, response.get('success', 'Password reset successful.'))
+				return redirect('admin_login')
+
+			else:
+				if status_code == 404:
+					messages.error("Invalid password reset token.")
+					return redirect('admin_forgot_password')
+
+				elif status_code == 400:
+					if 'password' in response:
+						messages.error("Password: " + response.get('password', "Invalid format for the new password."))
+
+						ret = redirect('admin_password_reset')
+						ret.set_cookie('rp_form_password', new_password)
+
+						return ret
+
+					elif 'token' in response:
+						messages.error(response.get('token', "The password reset token you provided has expired."))
+						return redirect('admin_forgot_password')
+
+		else:
+			for field in form.errors:
+				messages.error(request, field + ': ' + form.errors[field])
+
+			return redirect('admin_password_reset')
+	
+	else:
+		password_reset_token = request.GET.get('token')
+		
+		if not password_reset_token:
+			messages.error(request, 'Password reset token required.')
+			return redirect('admin_forgot_password')
+
+		params = {'form': LoginForm({
+			'password': request.COOKIES.get('rp_form_password')
+		})}
+
+		request.COOKIES.pop('rp_form_password', None)
+
+		return render(request, 'admin/reset_password.html', params)
 
 # Students
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
