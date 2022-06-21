@@ -1,8 +1,9 @@
-from academics.views import MarksViewSet, AttendanceViewSet
+from academics.views import MarksViewSet, AttendanceViewSet, get_branch_names
 
 from django.urls import path
 
 urlpatterns = [
+	path('metadata/branches', get_branch_names, name='get_branch_names'),
 	path('marks/', MarksViewSet.as_view({
 		'get': 'list',
 		'post': 'create'

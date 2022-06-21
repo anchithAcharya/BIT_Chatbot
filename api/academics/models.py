@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Branch(models.Model):
-	code = models.CharField(primary_key=True, max_length=10)
+	code = models.CharField(primary_key=True, max_length=10, editable=False)
 	name = models.CharField(max_length=100)
 	max_sems = models.IntegerField(default=8)
 
@@ -15,10 +15,10 @@ class Branch(models.Model):
 		return self.name
 
 class Subject(models.Model):
-	code = models.CharField(max_length=10, primary_key=True)
+	code = models.CharField(max_length=10, primary_key=True, editable=False)
 	name = models.CharField(max_length=100)
 	branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-	semester = models.IntegerField(default=8)
+	semester = models.IntegerField()
 	credits = models.IntegerField()
 
 	def __str__(self):
@@ -81,6 +81,9 @@ class Marks(models.Model):
 
 				if marks[1] > total[1]:
 					errors[marks[0]] = f'Marks cannot be greater than total marks: {total[1]}.'
+
+		if self.subject.semester > self.student.current_sem:
+			errors['subject'] = f"Student current semester is {self.student.current_sem} but subject semester is {self.subject.semester}."
 
 		if errors:
 			raise ValidationError(errors)
