@@ -11,4 +11,9 @@ Permissions:
 - current_sem		view, update		view
 
 
-CLIENT:
+WEBSITE:
+- create content blocks in templates
+- logout button
+- create user button
+- student and staff portals
+- batch create users

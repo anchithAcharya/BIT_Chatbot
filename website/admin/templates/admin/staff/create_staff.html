@@ -1,0 +1,14 @@
+<h1>Create new Staff</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'admin_create_staff' %}", method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.id.label }}: {{ form.id }}<br>
+	{{ form.email.label }}: {{ form.email }}<br>
+	{{ form.name.label }}: {{ form.name }}<br>
+	{{ form.branch.label }}: {{ form.branch }}<br>
+	<input type="submit" value="Create staff"><br><br>
+</form>

@@ -1,0 +1,34 @@
+<h1>Admin Control Panel for Staff</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+{% if not results %}
+	No results found.
+{% endif %}
+
+{% for item in results %}
+	ID: <a href="{% url 'admin_staff_details' item.id %}">{{ item.id }}</a><br>
+	Name: {{ item.name }}<br>
+	Email: {{ item.email }}<br>
+	Phone: {% firstof item.phone '-' %}<br>
+	Branch: {{ item.branch }}<br>
+	<br><br>
+{% endfor %}
+
+<br><br>
+{% if prev_page_no %}
+	<a href="{% url 'admin_staff_dashboard' %}?page={{ prev_page_no }}">Previous</a>
+	<br>
+{% endif %}
+	
+{% if next_page_no %}
+	<a href="{% url 'admin_staff_dashboard' %}?page={{ next_page_no }}">Next</a>
+	<br>
+{% endif %}
+
+Page no: 
+{% for page_no in total_pages %}
+	<a href="{% url 'admin_staff_dashboard' %}?page={{ page_no }}">{{ page_no }}</a>&nbsp;
+{% endfor %}
