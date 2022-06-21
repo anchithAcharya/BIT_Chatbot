@@ -25,7 +25,8 @@ class StaffDefaultSerializer(serializers.ModelSerializer):
 		user = get_user_model().objects.create_user(
 			id=validated_data['user']['id'],
 			email=validated_data['user']['email'],
-			name=validated_data['user']['name']
+			name=validated_data['user']['name'],
+			user_type='Staff'
 		)
 
 		return Staff.objects.create(
@@ -73,8 +74,8 @@ class StaffUpdationSerializer_Admin(StaffDefaultSerializer):
 
 	class Meta:
 		model = Staff
-		fields = ('id', 'image', 'name', 'branch')
-		restricted = ('id', 'email', 'phone', 'password')
+		fields = ('id', 'name', 'branch')
+		restricted = ('id', 'image', 'email', 'phone', 'password')
 
 
 # delete old image when adding new image

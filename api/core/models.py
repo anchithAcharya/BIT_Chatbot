@@ -26,8 +26,8 @@ def name_validator(value):
 
 # Custom User model manager
 class UserManager(BaseUserManager):
-	def create_user(self, id, email, name, password=None, **extra_fields):
-		user = self.model(id=id, email=email, name=name, password=password, **extra_fields)
+	def create_user(self, id, email, name, user_type, password=None, **extra_fields):
+		user = self.model(id=id, email=email, name=name, user_type=user_type, password=password, **extra_fields)
 
 		if password: user.set_password(password)
 		else: user.set_unusable_password()
@@ -36,11 +36,11 @@ class UserManager(BaseUserManager):
 		return user
 
 	def create_superuser(self, id, email, name, password, **extra_fields):
-		# extra_fields.setdefault('is_staff', True)
+		extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_superuser', True)
 
-		# if extra_fields.get('is_staff') is not True:
-		# 	raise ValueError('Superuser must have is_staff=True.')
+		if extra_fields.get('is_staff') is not True:
+			raise ValueError('Superuser must have is_staff=True.')
 
 		if password is None:
 			raise ValueError("Superuser must have a password.")
@@ -48,7 +48,7 @@ class UserManager(BaseUserManager):
 		if extra_fields.get('is_superuser') is not True:
 			raise ValueError('Superuser must have is_superuser=True.')
 
-		return self.create_user(id, email, name, password, **extra_fields)
+		return self.create_user(id, email, name, 'Admin', password, **extra_fields)
 
 # Custom User model
 class User(AbstractBaseUser, PermissionsMixin):
@@ -57,6 +57,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 	name = models.CharField(max_length=100, null=False, validators=[name_validator])
 
 	is_staff = models.BooleanField(default=False)
+	user_type = models.CharField(max_length=10, null=False, editable=False, choices=(
+		('Admin', 'Admin'),
+		('Student', 'Student'),
+		('Staff', 'Staff'),
+	))
 
 	objects = UserManager()
 

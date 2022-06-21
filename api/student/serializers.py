@@ -23,7 +23,8 @@ class StudentDefaultSerializer(serializers.ModelSerializer):
 		user = get_user_model().objects.create_user(
 			id=validated_data['user']['id'],
 			email=validated_data['user']['email'],
-			name=validated_data['user']['name']
+			name=validated_data['user']['name'],
+			user_type='Student'
 		)
 
 		return Student.objects.create(
@@ -74,8 +75,8 @@ class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
 
 	class Meta:
 		model = Student
-		fields = ('id', 'image', 'name', 'current_sem', 'branch')
-		restricted = ('id', 'email', 'phone', 'password')
+		fields = ('id', 'name', 'current_sem', 'branch')
+		restricted = ('id', 'image', 'email', 'phone', 'password')
 
 
 # delete old image when adding new image

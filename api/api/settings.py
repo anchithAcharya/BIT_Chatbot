@@ -160,3 +160,8 @@ EMAIL_HOST_PASSWORD = secrets.EMAIL_HOST_PASSWORD
 
 MEDIA_ROOT = Path(BASE_DIR) / 'media'
 MEDIA_URL = '/media/'
+
+
+# Client URLs to be sent in verification and password reset emails
+FORGOT_PASSWORD_URL = 'http://localhost:8000/type/forgot-password'
+RESET_PASSWORD_URL = 'http://localhost:8000/type/reset-password'

@@ -5,12 +5,12 @@ from django.contrib.auth import get_user_model
 class UserCreationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = get_user_model()
-		exclude = ('password',)
+		exclude = ('password', 'user_type')
 
 class UserUpdationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = get_user_model()
-		fields = '__all__'
+		exclude = ('user_type',)
 		extra_kwargs = {
 			'password': {'write_only': True},
 		}

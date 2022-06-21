@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from core.urls import urlpatterns as admin_urls
 from student.urls import router as student_router
 from staff.urls import router as staff_router
 from academics.urls import urlpatterns as academics_urls
@@ -24,7 +25,8 @@ from django.conf import settings
 from django.conf.urls.static import  static
 
 urlpatterns = [
-    path('api/admin/', admin.site.urls),
+    path('api/test/admin/', admin.site.urls),
+    path('api/', include(admin_urls)),
     path('api/', include(student_router.urls)),
     path('api/', include(staff_router.urls)),
     path('api/', include(academics_urls)),
