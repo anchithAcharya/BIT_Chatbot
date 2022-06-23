@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from academics.serializers import MarksSerializer, AttendanceSerializer
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from core.permissions import isAdmin, isCreator, isStaff
+from core.permissions import isAdmin, isCreator, isStudent, isStaff
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -34,6 +34,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 		'logout': IsAuthenticated,
 		'forgot_password': AllowAny,
 		'password_reset': AllowAny,
+		'account': isStudent,
 		'marks': isAdmin|isCreator|isStaff,
 		'attendance': isAdmin|isCreator|isStaff
 	}
@@ -78,9 +79,10 @@ class StudentViewSet(viewsets.ModelViewSet):
 	@action(detail=True, methods=['GET'])
 	def attendance(self, request, user_id=None):
 		student = Student.objects.get(user_id=user_id)
-		attendance = student.marks.filter(subject__semester=student.current_sem)
+		attendance = student.attendance.filter(subject__semester=student.current_sem)
 		attendance = AttendanceSerializer(attendance, many=True).data
 		return Response(attendance, status=status.HTTP_200_OK)
+
 
 	def create(self, request, *args, **kwargs):
 		try:
@@ -117,6 +119,17 @@ class StudentViewSet(viewsets.ModelViewSet):
 		self.perform_destroy(instance)
 
 		return Response({'success': f"User {user_id} deleted successfully."}, status=status.HTTP_200_OK)
+
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.detail:
+			kwargs.pop('user_id', None)
+
+		else:
+			req = self.initialize_request(request, *args, **kwargs)
+			kwargs['user_id'] = req.user.id
+
+		return super().dispatch(request, *args, **kwargs)
 
 	def get_serializer_class(self):
 		if self.action == 'update' or self.action == 'partial_update':

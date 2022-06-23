@@ -102,6 +102,17 @@ class StaffViewSet(viewsets.ModelViewSet):
 
 		return Response({'success': f"User {user_id} deleted successfully."}, status=status.HTTP_200_OK)
 
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.detail:
+			kwargs.pop('user_id', None)
+
+		else:
+			req = self.initialize_request(request, *args, **kwargs)
+			kwargs['user_id'] = req.user.id
+
+		return super().dispatch(request, *args, **kwargs)
+
 	def get_serializer_class(self):
 		if self.action == 'update' or self.action == 'partial_update':
 			if self.request.user.id == self.kwargs['user_id']:

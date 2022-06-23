@@ -1,7 +1,13 @@
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, status
 from academics.models import Marks, Attendance, Branch
-from academics.serializers import MarksSerializer, AttendanceSerializer
+from academics.serializers import (
+	MarksSerializer,
+	MarksQuerySerializer,
+	AttendanceSerializer,
+	AttendanceQuerySerializer
+)
+from django.db.models import Q
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from core.permissions import isAdmin, isStaff, isOwner
@@ -21,15 +27,19 @@ class MarksViewSet(viewsets.ModelViewSet):
 
 
 	def list(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.GET, partial=True)
+		serializer = MarksQuerySerializer(data=request.GET, partial=True)
 
 		if serializer.is_valid():
 			student = serializer.validated_data.get('student', {}).get('user', {}).get('id')
-			subject = serializer.validated_data.get('subject', {}).get('code')
+			subject_id = serializer.validated_data.get('subject', {}).get('code')
+			subject_name = serializer.validated_data.get('subject', {}).get('name')
+			semester = serializer.validated_data.get('subject', {}).get('semester')
 
 			queryset = self.filter_queryset(self.get_queryset())
 			if student: queryset = queryset.filter(student=student)
-			if subject: queryset = queryset.filter(subject=subject)
+			if subject_id: queryset = queryset.filter(subject__code=subject_id)
+			if subject_name: queryset = queryset.filter(Q(subject__name=subject_name) | Q(subject__abbreviation=subject_name))
+			if semester: queryset = queryset.filter(subject__semester=semester)
 
 			page = self.paginate_queryset(queryset)
 			if page is not None:

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from academics.models import Marks, Attendance, Subject
 from student.models import Student
 
+
 # Custom User serializer
 class MarksSerializer(serializers.ModelSerializer):
 	student = serializers.CharField(source='student.user.id')
@@ -51,6 +52,16 @@ class MarksSerializer(serializers.ModelSerializer):
 
 		return super().update(instance, validated_data)
 
+class MarksQuerySerializer(serializers.ModelSerializer):
+	usn = serializers.CharField(source='student.user.id')
+	subject_id = serializers.CharField(source='subject.code')
+	subject_name = serializers.CharField(source='subject.name')
+	semester = serializers.CharField(source='subject.semester')
+
+	class Meta:
+		model = Marks
+		fields = ('usn', 'subject_id', 'subject_name', 'semester')
+
 
 class AttendanceSerializer(serializers.ModelSerializer):
 	student = serializers.CharField(source='student.user.id')
@@ -98,3 +109,13 @@ class AttendanceSerializer(serializers.ModelSerializer):
 		validated_data['subject'] = subject
 
 		return super().update(instance, validated_data)
+
+class AttendanceQuerySerializer(serializers.ModelSerializer):
+	usn = serializers.CharField(source='student.user.id')
+	subject_id = serializers.CharField(source='subject.code')
+	subject_name = serializers.CharField(source='subject.name')
+	semester = serializers.CharField(source='subject.semester')
+
+	class Meta:
+		model = Marks
+		fields = ('usn', 'subject_id', 'subject_name', 'semester')

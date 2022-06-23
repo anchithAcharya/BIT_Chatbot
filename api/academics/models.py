@@ -3,6 +3,16 @@ from student.models import Student
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
+def get_abbreviation(name):
+	abbreviation = ''
+
+	for word in name.split():
+		if word[0].isupper():
+			abbreviation += word[0]
+
+	return abbreviation
+
 class Branch(models.Model):
 	code = models.CharField(primary_key=True, max_length=10, editable=False)
 	name = models.CharField(max_length=100)
@@ -17,6 +27,7 @@ class Branch(models.Model):
 class Subject(models.Model):
 	code = models.CharField(max_length=10, primary_key=True, editable=False)
 	name = models.CharField(max_length=100)
+	abbreviation = models.CharField(max_length=10, blank=False, default=get_abbreviation)
 	branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
 	semester = models.IntegerField()
 	credits = models.IntegerField()
