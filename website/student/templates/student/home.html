@@ -1,0 +1,63 @@
+<h1>Student Data Portal</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<h2>Welcome {{ student.name }}!</h2>
+
+<ul>
+	<li><a href="{% url 'student_account' %}">Student account</a></li>
+	<li><a href="{% url 'student_marks' %}">Student Marks</a></li>
+	<li><a href="{% url 'student_attendance' %}">Student Attendance</a></li>
+</ul>
+
+{% if marks %}
+Marks brief:<br>
+<table border="1">
+	<tr>
+		<th>Subject</th>
+		<th>Test 1</th>
+		<th>Test 2</th>
+		<th>Test 3</th>
+		<th>Assignment 1</th>
+		<th>Assignment 2</th>
+		<th>Externals</th>
+	</tr>
+
+	{% for mark in marks %}
+		<tr>
+			<th> {{ mark.subject }} </th>
+			{% if mark.test1Marks %} <td> {{ mark.test1Marks }}/{{ mark.test1Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.test2Marks %} <td> {{ mark.test2Marks }}/{{ mark.test2Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.test3Marks %} <td> {{ mark.test3Marks }}/{{ mark.test3Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.assignment1Marks %} <td> {{ mark.assignment1Marks }}/{{ mark.assignment1Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.assignment2Marks %} <td> {{ mark.assignment2Marks }}/{{ mark.assignment2Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.externalMarks %} <td> {{ mark.externalMarks }}/{{ mark.externalTotal }} </td> {% else %} <td> - </td> {% endif %}
+		</tr>
+	{% endfor %}
+</table>
+{% endif %}
+
+<br><br>
+
+{% if attendance %}
+Attendance brief:<br>
+<table border="1">
+	<tr>
+		<th>Subject</th>
+		<th>Test 1 (%)</th>
+		<th>Test 2 (%)</th>
+		<th>Test 3 (%)</th>
+	</tr>
+
+	{% for att in attendance %}
+		<tr>
+			<th> {{ att.subject }} </th>
+			{% if att.test1Attendance %} <td> {{ att.test1Attendance }} </td> {% else %} <td> - </td> {% endif %}
+			{% if att.test2Attendance %} <td> {{ att.test2Attendance }} </td> {% else %} <td> - </td> {% endif %}
+			{% if att.test3Attendance %} <td> {{ att.test3Attendance }} </td> {% else %} <td> - </td> {% endif %}
+		</tr>
+	{% endfor %}
+</table>
+{% endif %}

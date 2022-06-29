@@ -1,18 +1,17 @@
-import sys
-sys.path.append(r"D:\Productivity\Code\Chatbot")
-
 import client.admin as admin_api
 import client.common as common_api
 
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import render, redirect
+
+from common.forms import LoginForm, StudentQueryForm
 from .forms import (
-	LoginForm,
 	EditStudentForm,
 	EditStaffForm,
 	CreateStudentForm,
-	CreateStaffForm
+	CreateStaffForm,
+	StaffQueryForm
 )
 from django.views.decorators.cache import cache_control
 import json
@@ -53,7 +52,7 @@ def login(request):
 				messages.error(request, response.get('password', 'Authentication failed.'))
 				ret = redirect('admin_login')
 				ret.set_cookie('form_id', form.cleaned_data.get('id'))
-				ret.set_cookie('password', form.cleaned_data.get('password'))
+				ret.set_cookie('form_password', form.cleaned_data.get('password'))
 				return ret
 
 			elif status_code == 404:
@@ -65,13 +64,13 @@ def login(request):
 
 			elif status_code == 400:
 				for field in response:
-					messages.error(request, response[field])
+					messages.error(request, field+': '+response[field])
 
 				return redirect('admin_login')
 
 		else:
 			for field in form.errors:
-				messages.error(request, field + ': ' + form.errors[field])
+				messages.error(request, field+': '+form.errors[field])
 
 			return redirect('admin_login')
 
@@ -128,13 +127,13 @@ def forgot_password(request):
 
 			elif status_code == 400:
 				for field in response:
-					messages.error(request, response[field])
+					messages.error(request, field+': '+response[field])
 
 				return redirect('admin_forgot_password')
 
 		else:
 			for field in form.errors:
-				messages.error(request, form.errors[field])
+				messages.error(request, field+': '+form.errors[field])
 
 			return redirect('admin_forgot_password')
 
@@ -156,7 +155,7 @@ def reset_password(request):
 			messages.error(request, 'Password reset token required.')
 			return redirect('admin_forgot_password')
 
-		form = LoginForm({'id': '101', 'password': new_password})
+		form = LoginForm({'id': 'TestID123', 'password': new_password})
 
 		if form.is_valid():
 			response, status_code = admin_api.reset_password(password_reset_token, new_password)
@@ -223,23 +222,41 @@ def student_dashboard(request):
 		messages.error(request, 'You must be logged in to view the dashboard.')
 		return redirect('admin_login')
 
+	token = request.COOKIES.get('token')
 	page_no = request.GET.get('page', 1)
-	response, status_code = admin_api.get_all_students(request.COOKIES.get('token'), page_no)
-	
-	if status_code == 200:
-		response['total_pages'] = range(1, response['total_pages'] + 1)
-		return render(request, 'admin/students/dashboard.html', response)
 
-	else:
-		if status_code == 404:
-			messages.error(request, f"Invalid or empty page: {page_no}")
-			return redirect('admin_students_dashboard')
+	choices, status_code = common_api.get_branch_names(token)
+	if status_code == 200: choices.insert(0, ['', 'All'])
+	else: choices = ['', 'All']
 
-		elif status_code == 401:
-			if request.META.get('HTTP_REFERER') is None:
-				messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+	form = StudentQueryForm(request.POST, branch_choices=choices)
 
-			return redirect('admin_login')
+	if form.is_valid():
+		data = {k:v for k,v in form.cleaned_data.items() if v}
+		response, status_code = admin_api.get_all_students(token, data, page=page_no)
+
+		if status_code == 200:
+			response['total_pages'] = range(1, response['total_pages'] + 1)
+			response['form'] = form
+
+			return render(request, 'admin/students/dashboard.html', response)
+
+		else:
+			if status_code == 404:
+				messages.error(request, f"Invalid or empty page: {page_no}")
+				return redirect('admin_students_dashboard')
+
+			elif status_code == 401:
+				if request.META.get('HTTP_REFERER') is None:
+					messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+				return redirect('admin_login')
+
+	params = {
+		'form': form
+	}	
+
+	return render(request, 'admin/students/dashboard.html', params)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def student_details(request, id):
@@ -284,10 +301,10 @@ def create_student(request):
 		messages.error(request, 'You must be logged in to view student details.')
 		return redirect('admin_login')
 
-	if request.method == 'POST':
-		token = request.COOKIES.get('token')
+	token = request.COOKIES.get('token')
 
-		branches, status_code = common_api.get_branch_names()
+	if request.method == 'POST':
+		branches, status_code = common_api.get_branch_names(token)
 		if status_code != 200: branches = []
 
 		form = CreateStudentForm(request.POST, request.FILES, branch_choices=branches)
@@ -348,7 +365,7 @@ def create_student(request):
 			return ret
 
 	else:
-		branches, status_code = common_api.get_branch_names()
+		branches, status_code = common_api.get_branch_names(token)
 		if status_code != 200: branches = []
 
 		initial={}
@@ -415,23 +432,41 @@ def staff_dashboard(request):
 		messages.error(request, 'You must be logged in to view the dashboard.')
 		return redirect('admin_login')
 
+	token = request.COOKIES.get('token')
 	page_no = request.GET.get('page', 1)
-	response, status_code = admin_api.get_all_staff(request.COOKIES.get('token'), page_no)
-	
-	if status_code == 200:
-		response['total_pages'] = range(1, response['total_pages'] + 1)
-		return render(request, 'admin/staff/dashboard.html', response)
 
-	else:
-		if status_code == 404:
-			messages.error(request, f"Invalid or empty page: {page_no}")
-			return redirect('admin_staff_dashboard')
+	choices, status_code = common_api.get_branch_names(token)
+	if status_code == 200: choices.insert(0, ['', 'All'])
+	else: choices = ['', 'All']
 
-		elif status_code == 401:
-			if request.META.get('HTTP_REFERER') is None:
-				messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+	form = StaffQueryForm(request.POST, branch_choices=choices)
 
-			return redirect('admin_login')
+	if form.is_valid():
+		data = {k:v for k,v in form.cleaned_data.items() if v}
+		response, status_code = admin_api.get_all_staff(token, data, page=page_no)
+
+		if status_code == 200:
+			response['total_pages'] = range(1, response['total_pages'] + 1)
+			response['form'] = form
+
+			return render(request, 'admin/staff/dashboard.html', response)
+
+		else:
+			if status_code == 404:
+				messages.error(request, f"Invalid or empty page: {page_no}")
+				return redirect('admin_staff_dashboard')
+
+			elif status_code == 401:
+				if request.META.get('HTTP_REFERER') is None:
+					messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+				return redirect('admin_login')
+
+	params = {
+		'form': form
+	}	
+
+	return render(request, 'admin/staff/dashboard.html', params)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def staff_details(request, id):
@@ -476,10 +511,10 @@ def create_staff(request):
 		messages.error(request, 'You must be logged in to view student details.')
 		return redirect('admin_login')
 
-	if request.method == 'POST':
-		token = request.COOKIES.get('token')
+	token = request.COOKIES.get('token')
 
-		branches, status_code = common_api.get_branch_names()
+	if request.method == 'POST':
+		branches, status_code = common_api.get_branch_names(token)
 		if status_code != 200: branches = []
 
 		form = CreateStaffForm(request.POST, request.FILES, branch_choices=branches)
@@ -540,7 +575,7 @@ def create_staff(request):
 			return ret
 
 	else:
-		branches, status_code = common_api.get_branch_names()
+		branches, status_code = common_api.get_branch_names(token)
 		if status_code != 200: branches = []
 
 		initial={}

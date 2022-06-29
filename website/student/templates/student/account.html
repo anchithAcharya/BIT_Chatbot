@@ -1,0 +1,22 @@
+<h1>Student Account</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'student_account' %}", method="post", enctype="multipart/form-data">
+	{% csrf_token %}
+	<img src="{% firstof form.image.url student.image %}" alt="Profile picture for {{ student.name }}"><br>
+	{{ form.image }}<br>
+	{{ form.image.errors }}<br>
+	ID: {{ student.id }}<br>
+	Name: {{ form.name }}<br>
+	{{ form.name.errors }}<br>
+	Email: {{ form.email }}<br>
+	{{ form.email.errors }}<br>
+	Phone: {{ form.phone }}<br>
+	{{ form.phone.errors }}<br>
+	Branch: {{ student.branch }}<br>
+	Current Semester: {{ student.current_sem }}<br><br>
+	<input type="submit" value="Edit">
+</form>

@@ -1,0 +1,14 @@
+<h1>Staff Data Portal</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<h2>Welcome {{ staff.name }}!</h2>
+
+<ul>
+	<li><a href="{% url 'staff_account' %}">Staff Account</a></li>
+	<li><a href="{% url 'staff_student_details' %}">View Student Details</a></li>
+	<li><a href="{% url 'staff_list_marks' %}">Manage Student Marks</a></li>
+	<li><a href="{% url 'staff_list_attendance' %}">Manage Student Attendance</a></li>
+</ul>

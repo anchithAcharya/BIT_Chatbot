@@ -4,6 +4,12 @@
 	{{ msg }}<br><br>
 {% endfor %}
 
+<form action="{% url 'admin_students_dashboard' %}" method="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Search">
+</form>
+
 {% if not results %}
 	No results found.
 {% endif %}

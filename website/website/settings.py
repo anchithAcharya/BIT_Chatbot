@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     # 'django.contrib.sessions',
     # 'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home',
+    'common',
     'admin',
+    'student',
+    'staff',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLIENT_PARENT_DIR = str(BASE_DIR.parent)

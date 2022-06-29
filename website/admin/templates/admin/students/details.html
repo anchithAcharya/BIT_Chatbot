@@ -4,7 +4,7 @@
 	{{ msg }}<br><br>
 {% endfor %}
 
-<img src="{{ student.image }}" alt="">
+<img src="{{ student.image }}" alt="Profile picture for {{ student.name }}">
 
 <form action="{% url 'admin_students_edit' student.id %}", method="post">
 	{% csrf_token %}
@@ -17,11 +17,3 @@
 	<input type="submit" value="Edit"><br><br>
 	<button type="submit" formaction="{% url 'admin_students_delete' student.id %}">Delete Student</button>
 </form>
-
-{% if form.errors %}
-    {% for field in form %}
-        {% for error in field.errors %}
-            {{ error }}<br>
-        {% endfor %}
-    {% endfor %}
-{% endif %}

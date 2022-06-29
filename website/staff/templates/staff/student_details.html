@@ -1,10 +1,10 @@
-<h1>Admin Control Panel for Staff</h1>
+<h1>Students Details</h1>
 
 {% for msg in messages %}
 	{{ msg }}<br><br>
 {% endfor %}
 
-<form action="{% url 'admin_staff_dashboard' %}" method="post">
+<form action="{% url 'staff_student_details' %}" method="post">
 	{% csrf_token %}
 	{{ form.as_p }}
 	<input type="submit" value="Search">
@@ -15,26 +15,27 @@
 {% endif %}
 
 {% for item in results %}
-	ID: <a href="{% url 'admin_staff_details' item.id %}">{{ item.id }}</a><br>
+	ID: {{ item.id }}<br>
 	Name: {{ item.name }}<br>
 	Email: {{ item.email }}<br>
 	Phone: {% firstof item.phone '-' %}<br>
 	Branch: {{ item.branch }}<br>
+	Current Semester: {{ item.current_sem }}<br>
 	<br><br>
 {% endfor %}
 
 <br><br>
 {% if prev_page_no %}
-	<a href="{% url 'admin_staff_dashboard' %}?page={{ prev_page_no }}">Previous</a>
+	<a href="{% url 'staff_student_details' %}?page={{ prev_page_no }}">Previous</a>
 	<br>
 {% endif %}
 	
 {% if next_page_no %}
-	<a href="{% url 'admin_staff_dashboard' %}?page={{ next_page_no }}">Next</a>
+	<a href="{% url 'staff_student_details' %}?page={{ next_page_no }}">Next</a>
 	<br>
 {% endif %}
 
 Page no: 
 {% for page_no in total_pages %}
-	<a href="{% url 'admin_staff_dashboard' %}?page={{ page_no }}">{{ page_no }}</a>&nbsp;
+	<a href="{% url 'staff_student_details' %}?page={{ page_no }}">{{ page_no }}</a>&nbsp;
 {% endfor %}

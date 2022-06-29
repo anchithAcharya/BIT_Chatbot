@@ -1,0 +1,23 @@
+<h1>Staff Account</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'staff_account' %}", method="post", enctype="multipart/form-data">
+	{% csrf_token %}
+	<img src="{% firstof form.image.url staff.image %}" alt="Profile picture for {{ staff.name }}"><br>
+	{{ form.image }}<br>
+	{{ form.image.errors }}<br>
+	ID: {{ staff.id }}<br>
+	Name: {{ form.name }}<br>
+	{{ form.name.errors }}<br>
+	Email: {{ form.email }}<br>
+	{{ form.email.errors }}<br>
+	Phone: {{ form.phone }}<br>
+	{{ form.phone.errors }}<br>
+	Branch: {{ staff.branch }}<br>
+	<input type="submit" value="Edit">
+</form>
+
+<a href="{% url 'staff_change_password' %}">Change Password</a>

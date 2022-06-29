@@ -1,19 +1,6 @@
-- links currently sent in email are api links (they immediately fail since no POST data is sent by the user when link is clicked). Change the links to app links once app is ready.
-
-Permissions:
-
-					admin				student
-- id				view				view
-- email				view				view, update
-- name				view, update		view, update
-- password			-					view, update
-- branch			view, update		view
-- current_sem		view, update		view
-
-
 WEBSITE:
 - create content blocks in templates
 - logout button
 - create user button
-- student and staff portals
 - batch create users
+- change password without resetting for admin

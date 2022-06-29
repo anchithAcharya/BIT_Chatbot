@@ -1,0 +1,11 @@
+<h1>Student {{ student }} attendance for Subject {{ subject }}</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{{ action }}" method="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="{{ add|yesno:'Add,Edit' }}" />
+</form>

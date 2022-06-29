@@ -9,6 +9,10 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'website.settings')
     try:
         from django.core.management import execute_from_command_line
+
+        from django.conf import settings
+        sys.path.append(settings.CLIENT_PARENT_DIR)
+
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "
