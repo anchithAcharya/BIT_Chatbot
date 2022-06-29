@@ -3,7 +3,6 @@ from academics.models import Marks, Attendance, Subject
 from student.models import Student
 
 
-# Custom User serializer
 class MarksSerializer(serializers.ModelSerializer):
 	student = serializers.CharField(source='student.user.id')
 	subject = serializers.CharField(source='subject.code')
@@ -53,14 +52,16 @@ class MarksSerializer(serializers.ModelSerializer):
 		return super().update(instance, validated_data)
 
 class MarksQuerySerializer(serializers.ModelSerializer):
-	usn = serializers.CharField(source='student.user.id')
+	student_id = serializers.CharField(source='student.user.id')
+	student_name = serializers.CharField(source='student.user.name')
 	subject_id = serializers.CharField(source='subject.code')
 	subject_name = serializers.CharField(source='subject.name')
 	semester = serializers.CharField(source='subject.semester')
+	branch = serializers.CharField(source='student.branch')
 
 	class Meta:
 		model = Marks
-		fields = ('usn', 'subject_id', 'subject_name', 'semester')
+		fields = ('student_id', 'student_name', 'subject_id', 'subject_name', 'semester', 'branch')
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
@@ -111,11 +112,13 @@ class AttendanceSerializer(serializers.ModelSerializer):
 		return super().update(instance, validated_data)
 
 class AttendanceQuerySerializer(serializers.ModelSerializer):
-	usn = serializers.CharField(source='student.user.id')
+	student_id = serializers.CharField(source='student.user.id')
+	student_name = serializers.CharField(source='student.user.name')
 	subject_id = serializers.CharField(source='subject.code')
 	subject_name = serializers.CharField(source='subject.name')
 	semester = serializers.CharField(source='subject.semester')
+	branch = serializers.CharField(source='student.branch')
 
 	class Meta:
 		model = Marks
-		fields = ('usn', 'subject_id', 'subject_name', 'semester')
+		fields = ('student_id', 'student_name', 'subject_id', 'subject_name', 'semester', 'branch')

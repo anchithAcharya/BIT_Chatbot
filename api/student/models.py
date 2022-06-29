@@ -56,3 +56,9 @@ class Student(models.Model):
 				img.save(self.image.path)
 
 		return ret
+
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('user',)
+
+			return self.readonly_fields

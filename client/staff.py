@@ -1,7 +1,7 @@
 import json
 import requests
 
-from common import root
+from .common import root
 
 
 # Staff authentication
@@ -22,5 +22,28 @@ def forgot_password(id):
 
 def reset_password(password_reset_token, new_password):
 	response = requests.post(url=f"{root}/staff/password_reset/", params={'token': password_reset_token}, data={'password': new_password})
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+def change_password(token, data):
+	response = requests.patch(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/me/", data=data)
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+
+# Staff account
+def get_account_details(token):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/me")
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+def edit_account_details(token, data, files=None):
+	response = requests.patch(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/me/", data=data, files=files)
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+
+def get_all_students(token, params, page=1):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/student/?page={page}", params=params)
 	dict = json.loads(response.text)
 	return dict, response.status_code

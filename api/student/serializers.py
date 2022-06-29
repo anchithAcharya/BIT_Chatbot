@@ -55,10 +55,20 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 		write_only=True,
 		max_length=128
 	)
+	password_confirm = serializers.CharField(
+		style={'input_type': 'password'},
+		write_only=True,
+		max_length=128
+	)
+	old_password = serializers.CharField(
+		style={'input_type': 'password'},
+		write_only=True,
+		max_length=128
+	)
 
 	class Meta:
 		model = Student
-		fields = ('id', 'image', 'email', 'name', 'phone', 'password')
+		fields = ('id', 'image', 'email', 'name', 'phone', 'old_password', 'password', 'password_confirm')
 		restricted = ('id', 'branch', 'current_sem')
 		extra_kwargs = {
 			'branch': {'read_only': True, 'required': False},
@@ -67,7 +77,23 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 		}
 
 	def update(self, instance, validated_data):
-		return super().update(instance, validated_data)
+		password = validated_data.get('user', {}).get('password')
+		if password:
+			if not validated_data.get('old_password'):
+				raise serializers.ValidationError({'old_password': 'Old password is required'})
+
+			if instance.user.check_password(validated_data.get('old_password')):
+				if not validated_data.get('password_confirm'):
+					raise serializers.ValidationError({'password_confirm': 'Password confirmation is required'})
+
+				if password == validated_data.get('password_confirm'):
+					return super().update(instance, validated_data)
+
+				else: raise serializers.ValidationError({'__all__': 'Password and Confirm Password do not match.'})
+
+			else: raise serializers.ValidationError({'old_password': 'Incorrect current password.'})
+
+		else: return super().update(instance, validated_data)
 
 class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
 	email = None
@@ -77,6 +103,15 @@ class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
 		model = Student
 		fields = ('id', 'name', 'current_sem', 'branch')
 		restricted = ('id', 'image', 'email', 'phone', 'password')
+
+
+class StudentQuerySerializer(StudentDefaultSerializer):
+	email = serializers.CharField(max_length=254)
+	branch = serializers.CharField(max_length=200)
+
+	class Meta:
+		model = Student
+		exclude = ('image',)
 
 
 # delete old image when adding new image

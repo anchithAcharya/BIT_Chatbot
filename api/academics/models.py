@@ -14,7 +14,7 @@ def get_abbreviation(name):
 	return abbreviation
 
 class Branch(models.Model):
-	code = models.CharField(primary_key=True, max_length=10, editable=False)
+	code = models.CharField(primary_key=True, max_length=10)
 	name = models.CharField(max_length=100)
 	max_sems = models.IntegerField(default=8)
 
@@ -24,16 +24,29 @@ class Branch(models.Model):
 	def __str__(self):
 		return self.name
 
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('code',)
+
+			return self.readonly_fields
+
 class Subject(models.Model):
-	code = models.CharField(max_length=10, primary_key=True, editable=False)
+	code = models.CharField(max_length=10, primary_key=True)
 	name = models.CharField(max_length=100)
-	abbreviation = models.CharField(max_length=10, blank=False, default=get_abbreviation)
+	abbreviation = models.CharField(max_length=10, blank=False)
 	branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
 	semester = models.IntegerField()
 	credits = models.IntegerField()
 
 	def __str__(self):
 		return self.name
+
+	
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('code',)
+
+			return self.readonly_fields
 
 	def clean(self) -> None:
 		if self.semester < 1:
@@ -43,6 +56,12 @@ class Subject(models.Model):
 			raise ValidationError(f"Current semester must be less than or equal to number or semesters for {self.branch.name}: {self.branch.max_sems}.")
 
 		return super().clean()
+
+	def save(self, *args, **kwargs):
+		if not self.abbreviation:
+			self.abbreviation = get_abbreviation(self.name)
+
+		super().save(*args, **kwargs)
 
 class Marks(models.Model):
 	student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL, related_name = 'marks')
@@ -93,11 +112,24 @@ class Marks(models.Model):
 				if marks[1] > total[1]:
 					errors[marks[0]] = f'Marks cannot be greater than total marks: {total[1]}.'
 
+		if self.subject.branch != self.student.branch:
+			errors['__all__'] = 'Subject and student must belong to same branch.'
+
 		if self.subject.semester > self.student.current_sem:
 			errors['subject'] = f"Student current semester is {self.student.current_sem} but subject semester is {self.subject.semester}."
 
 		if errors:
 			raise ValidationError(errors)
+
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super().save(*args, **kwargs)
+
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('student', 'subject')
+
+			return self.readonly_fields
 
 class Attendance(models.Model):
 	student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL, related_name='attendance')
@@ -117,3 +149,25 @@ class Attendance(models.Model):
 
 	def __str__(self):
 		return f"<{self.student.user.id} {self.subject.name} attendance>"
+
+	def clean(self):
+		errors = {}
+
+		if self.subject.branch != self.student.branch:
+			errors['__all__'] = 'Subject and student must belong to same branch.'
+
+		if self.subject.semester > self.student.current_sem:
+			errors['subject'] = f"Student current semester is {self.student.current_sem} but subject semester is {self.subject.semester}."
+
+		if errors:
+			raise ValidationError(errors)
+
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super().save(*args, **kwargs)
+
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('student', 'subject')
+
+			return self.readonly_fields

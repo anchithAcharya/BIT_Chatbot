@@ -3,7 +3,8 @@ from staff.models import Staff
 from staff.serializers import (
 	StaffDefaultSerializer,
 	StaffUpdationSerializer_Staff,
-	StaffUpdationSerializer_Admin
+	StaffUpdationSerializer_Admin,
+	StaffQuerySerializer
 )
 
 from core.views import (
@@ -66,6 +67,33 @@ class StaffViewSet(viewsets.ModelViewSet):
 		return core_password_reset(request)
 
 
+	def list(self, request, *args, **kwargs):
+		serializer = StaffQuerySerializer(data=request.GET, partial=True)
+
+		if serializer.is_valid():
+			id = serializer.validated_data.get('user', {}).get('id')
+			email = serializer.validated_data.get('email')
+			name = serializer.validated_data.get('user', {}).get('name')
+			branch = serializer.validated_data.get('branch')
+			phone = serializer.validated_data.get('phone')
+
+			queryset = self.filter_queryset(self.get_queryset())
+			if id: queryset = queryset.filter(user__id__iexact=id)
+			if email: queryset = queryset.filter(user__email__icontains=email)
+			if name: queryset = queryset.filter(user__name__icontains=name)
+			if branch: queryset = queryset.filter(branch__code__icontains=branch)
+			if phone: queryset = queryset.filter(phone__contains=phone)
+
+			page = self.paginate_queryset(queryset)
+			if page is not None:
+				serializer = self.get_serializer(page, many=True)
+				return self.get_paginated_response(serializer.data)
+
+			serializer = self.get_serializer(queryset, many=True)
+			return Response(serializer.data)
+
+		else: return super().list(request, *args, **kwargs)
+
 	def create(self, request, *args, **kwargs):
 		try:
 			return super().create(request, *args, **kwargs)
@@ -86,7 +114,11 @@ class StaffViewSet(viewsets.ModelViewSet):
 		if errors: return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 		serializer.is_valid(raise_exception=True)
-		updated_instance = serializer.save()
+		
+		try:
+			updated_instance = serializer.save()
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
 
 		if getattr(instance, '_prefetched_objects_cache', None):
 			instance._prefetched_objects_cache = {}

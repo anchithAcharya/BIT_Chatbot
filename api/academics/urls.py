@@ -3,8 +3,13 @@ from academics.views import MarksViewSet, AttendanceViewSet, get_branch_names
 from django.urls import path
 
 urlpatterns = [
-	path('metadata/branches', get_branch_names, name='get_branch_names'),
+	path('metadata/branches/', get_branch_names, name='get_branch_names'),
 	path('marks/', MarksViewSet.as_view({
+		'get': 'list',
+		'post': 'create'
+		})
+	),
+	path('attendance/', AttendanceViewSet.as_view({
 		'get': 'list',
 		'post': 'create'
 		})
@@ -22,5 +27,5 @@ urlpatterns = [
 		'patch': 'partial_update',
 		'delete': 'destroy'
 		})
-	),
+	)
 ]

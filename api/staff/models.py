@@ -28,14 +28,20 @@ class StaffManager(BaseUserManager):
 		staff.save()
 		return staff
 
-# Student class
+# Staff class
 class Staff(models.Model):
-	user = models.OneToOneField(get_user_model(), null=True, on_delete=models.CASCADE, related_name='staff')
+	user = models.OneToOneField(get_user_model(), primary_key=True, on_delete=models.CASCADE, related_name='staff')
 	image = models.ImageField(default='default.jpg', upload_to='staff/', null=True, blank=True)
-	branch = models.CharField(max_length=5)
+	branch = models.ForeignKey('academics.Branch', on_delete=models.CASCADE)
 	phone = models.CharField(max_length=10, blank=True, default='', validators=[phone_validator])
 
 	objects = StaffManager()
+
+	class Meta:
+		verbose_name_plural = "staff"
+
+	def __str__(self):
+		return "Staff " + self.user.id
 
 	def clean(self, *args, **kwargs):
 		user_validator(self.user)
@@ -55,3 +61,9 @@ class Staff(models.Model):
 				img.save(self.image.path)
 
 		return ret
+
+	def get_readonly_fields(self, request, obj=None):
+			if obj: # editing an existing object
+				return self.readonly_fields + ('user',)
+
+			return self.readonly_fields

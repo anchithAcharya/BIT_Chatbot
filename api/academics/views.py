@@ -1,6 +1,6 @@
-from rest_framework.decorators import api_view
 from rest_framework import viewsets, status
 from academics.models import Marks, Attendance, Branch
+from rest_framework.decorators import api_view
 from academics.serializers import (
 	MarksSerializer,
 	MarksQuerySerializer,
@@ -8,6 +8,7 @@ from academics.serializers import (
 	AttendanceQuerySerializer
 )
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from core.permissions import isAdmin, isStaff, isOwner
@@ -27,19 +28,38 @@ class MarksViewSet(viewsets.ModelViewSet):
 
 
 	def list(self, request, *args, **kwargs):
-		serializer = MarksQuerySerializer(data=request.GET, partial=True)
+		data = request.GET.copy()
+		subject = data.pop('subject', None)
+		student = data.pop('student', None)
+
+		if subject:
+			subject = subject[0]
+			data['subject_id'] = subject
+			data['subject_name'] = subject
+
+		if student:
+			student = student[0]
+			data['student_id'] = student
+			data['student_name'] = student
+
+		serializer = MarksQuerySerializer(data=data, partial=True)
 
 		if serializer.is_valid():
-			student = serializer.validated_data.get('student', {}).get('user', {}).get('id')
+			student_id = serializer.validated_data.get('student', {}).get('user', {}).get('id')
+			student_name = serializer.validated_data.get('student', {}).get('user', {}).get('name')
 			subject_id = serializer.validated_data.get('subject', {}).get('code')
 			subject_name = serializer.validated_data.get('subject', {}).get('name')
 			semester = serializer.validated_data.get('subject', {}).get('semester')
+			branch = serializer.validated_data.get('student', {}).get('branch')
+
+			subject = subject_id or subject_name
+			student = student_id or student_name
 
 			queryset = self.filter_queryset(self.get_queryset())
-			if student: queryset = queryset.filter(student=student)
-			if subject_id: queryset = queryset.filter(subject__code=subject_id)
-			if subject_name: queryset = queryset.filter(Q(subject__name=subject_name) | Q(subject__abbreviation=subject_name))
+			if student: queryset = queryset.filter(Q(student_id_iexact=student) | Q(student__user__name__icontains=student))
+			if subject: queryset = queryset.filter(Q(subject__name__icontains=subject) | Q(subject__abbreviation__icontains=subject) | Q(subject__code_iexact=subject))
 			if semester: queryset = queryset.filter(subject__semester=semester)
+			if branch: queryset = queryset.filter(subject__branch=branch)
 
 			page = self.paginate_queryset(queryset)
 			if page is not None:
@@ -49,7 +69,22 @@ class MarksViewSet(viewsets.ModelViewSet):
 			serializer = self.get_serializer(queryset, many=True)
 			return Response(serializer.data)
 
-		else: return super().list(request, *args, **kwargs)
+		else: return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+	def create(self, *args, **kwargs):
+		try:
+			return super().create(*args, **kwargs)
+
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
+
+	def update(self, *args, **kwargs):
+		try:
+			return super().update(*args, **kwargs)
+
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
 
 
 	def get_object(self):
@@ -73,15 +108,38 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
 
 	def list(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.GET, partial=True)
+		data = request.GET.copy()
+		subject = data.pop('subject', None)
+		student = data.pop('student', None)
+
+		if subject:
+			subject = subject[0]
+			data['subject_id'] = subject
+			data['subject_name'] = subject
+
+		if student:
+			student = student[0]
+			data['student_id'] = student
+			data['student_name'] = student
+
+		serializer = AttendanceQuerySerializer(data=data, partial=True)
 
 		if serializer.is_valid():
-			student = serializer.validated_data.get('student', {}).get('user', {}).get('id')
-			subject = serializer.validated_data.get('subject', {}).get('code')
+			student_id = serializer.validated_data.get('student', {}).get('user', {}).get('id')
+			student_name = serializer.validated_data.get('student', {}).get('user', {}).get('name')
+			subject_id = serializer.validated_data.get('subject', {}).get('code')
+			subject_name = serializer.validated_data.get('subject', {}).get('name')
+			semester = serializer.validated_data.get('subject', {}).get('semester')
+			branch = serializer.validated_data.get('student', {}).get('branch')
+
+			subject = subject_id or subject_name
+			student = student_id or student_name
 
 			queryset = self.filter_queryset(self.get_queryset())
-			if student: queryset = queryset.filter(student=student)
-			if subject: queryset = queryset.filter(subject=subject)
+			if student: queryset = queryset.filter(Q(student_id__iexact=student) | Q(student__user__name__icontains=student))
+			if subject: queryset = queryset.filter(Q(subject__name__icontains=subject) | Q(subject__abbreviation__icontains=subject) | Q(subject__code__iexact=subject))
+			if semester: queryset = queryset.filter(subject__semester=semester)
+			if branch: queryset = queryset.filter(subject__branch=branch)
 
 			page = self.paginate_queryset(queryset)
 			if page is not None:
@@ -92,6 +150,21 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 			return Response(serializer.data)
 
 		else: return super().list(request, *args, **kwargs)
+
+
+	def create(self, *args, **kwargs):
+		try:
+			return super().create(*args, **kwargs)
+
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
+
+	def update(self, *args, **kwargs):
+		try:
+			return super().update(*args, **kwargs)
+
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
 
 
 	def get_object(self):

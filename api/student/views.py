@@ -3,7 +3,8 @@ from student.models import Student
 from student.serializers import (
 	StudentDefaultSerializer,
 	StudentUpdationSerializer_Student,
-	StudentUpdationSerializer_Admin
+	StudentUpdationSerializer_Admin,
+	StudentQuerySerializer
 )
 
 from core.views import (
@@ -17,10 +18,12 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
+
+from academics.models import Subject, Marks, Attendance
 from academics.serializers import MarksSerializer, AttendanceSerializer
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from core.permissions import isAdmin, isCreator, isStudent, isStaff
+from core.permissions import isAdmin, isStudent, isStaff
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -35,14 +38,16 @@ class StudentViewSet(viewsets.ModelViewSet):
 		'forgot_password': AllowAny,
 		'password_reset': AllowAny,
 		'account': isStudent,
-		'marks': isAdmin|isCreator|isStaff,
-		'attendance': isAdmin|isCreator|isStaff
+		'marks_brief': isAdmin|isStudent|isStaff,
+		'attendance_brief': isAdmin|isStudent|isStaff,
+		'marks_report': isAdmin|isStudent|isStaff,
+		'attendance_report': isAdmin|isStudent|isStaff
 	}
 
 	detail_permissions = {
-		'GET': isAdmin|isCreator|isStaff,
-		'PUT': isAdmin|isCreator,
-		'PATCH': isAdmin|isCreator,
+		'GET': isAdmin|isStaff|isStudent,
+		'PUT': isAdmin|isStudent,
+		'PATCH': isAdmin|isStudent,
 		'DELETE': isAdmin
 	}
 
@@ -69,20 +74,84 @@ class StudentViewSet(viewsets.ModelViewSet):
 		return core_password_reset(request)
 
 
-	@action(detail=True, methods=['GET'])
-	def marks(self, request, user_id=None):
+	@action(detail=True, methods=['GET'], url_path='marks/brief')
+	def marks_brief(self, request, user_id):
 		student = Student.objects.get(user_id=user_id)
 		marks = student.marks.filter(subject__semester=student.current_sem)
 		marks = MarksSerializer(marks, many=True).data
 		return Response(marks, status=status.HTTP_200_OK)
 
-	@action(detail=True, methods=['GET'])
-	def attendance(self, request, user_id=None):
+	@action(detail=True, methods=['GET'], url_path='marks/report')
+	def marks_report(self, request, user_id):
+		student = Student.objects.get(user_id=user_id)
+
+		marks = {}
+		for sem in range(1, student.current_sem+1):
+			subjects = Subject.objects.filter(branch=student.branch, semester=sem)
+			marks[sem] = [student.marks.filter(subject=subject) or [Marks(student=student, subject=subject)] for subject in subjects]
+			marks[sem] = [MarksSerializer(mark[0]).data for mark in marks[sem]]
+
+		response = {sem: marks[sem] for sem in marks if marks[sem]}
+		response['student_id'] = student.user_id
+
+		return Response(response, status=status.HTTP_200_OK)
+
+
+	@action(detail=True, methods=['GET'], url_path='attendance/brief')
+	def attendance_brief(self, request, user_id):
 		student = Student.objects.get(user_id=user_id)
 		attendance = student.attendance.filter(subject__semester=student.current_sem)
 		attendance = AttendanceSerializer(attendance, many=True).data
 		return Response(attendance, status=status.HTTP_200_OK)
 
+	@action(detail=True, methods=['GET'], url_path='attendance/report')
+	def attendance_report(self, request, user_id):
+		student = Student.objects.get(user_id=user_id)
+
+		attendance = {}
+		for sem in range(1, student.current_sem+1):
+			subjects = Subject.objects.filter(branch=student.branch, semester=sem)
+			attendance[sem] = [student.attendance.filter(subject=subject) or [Attendance(student=student, subject=subject)] for subject in subjects]
+			attendance[sem] = [AttendanceSerializer(att[0]).data for att in attendance[sem]]
+
+		response = {sem: attendance[sem] for sem in attendance if attendance[sem]}
+		response['student_id'] = student.user_id
+
+		return Response(response, status=status.HTTP_200_OK)
+
+
+	def list(self, request, *args, **kwargs):
+		data=request.GET.copy()
+		usn = data.pop('usn', None)
+		if usn: data['id'] = usn[0]
+
+		serializer = StudentQuerySerializer(data=data, partial=True)
+
+		if serializer.is_valid():
+			id = serializer.validated_data.get('user', {}).get('id')
+			email = serializer.validated_data.get('email')
+			name = serializer.validated_data.get('user', {}).get('name')
+			current_sem = serializer.validated_data.get('current_sem')
+			branch = serializer.validated_data.get('branch')
+			phone = serializer.validated_data.get('phone')
+
+			queryset = self.filter_queryset(self.get_queryset())
+			if id: queryset = queryset.filter(user__id__iexact=id)
+			if email: queryset = queryset.filter(user__email__icontains=email)
+			if name: queryset = queryset.filter(user__name__icontains=name)
+			if current_sem: queryset = queryset.filter(current_sem=current_sem)
+			if branch: queryset = queryset.filter(branch__code__icontains=branch)
+			if phone: queryset = queryset.filter(phone__contains=phone)
+
+			page = self.paginate_queryset(queryset)
+			if page is not None:
+				serializer = self.get_serializer(page, many=True)
+				return self.get_paginated_response(serializer.data)
+
+			serializer = self.get_serializer(queryset, many=True)
+			return Response(serializer.data)
+
+		else: return super().list(request, *args, **kwargs)
 
 	def create(self, request, *args, **kwargs):
 		try:
@@ -104,7 +173,11 @@ class StudentViewSet(viewsets.ModelViewSet):
 		if errors: return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 		serializer.is_valid(raise_exception=True)
-		updated_instance = serializer.save()
+
+		try:
+			updated_instance = serializer.save()
+		except ValidationError as e:
+			return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
 
 		if getattr(instance, '_prefetched_objects_cache', None):
 			instance._prefetched_objects_cache = {}

@@ -27,8 +27,8 @@ def reset_password(password_reset_token, new_password):
 # Manage Students:
 
 # Non-detail
-def get_all_students(token, page=1):
-	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/student/?page={page}")
+def get_all_students(token, params, page=1):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/student/?page={page}", params=params)
 	dict = json.loads(response.text)
 	return dict, response.status_code
 
@@ -69,8 +69,8 @@ def delete_student(token, id):
 # Manage Staff:
 
 # Non-detail
-def get_all_staff(token, page=1):
-	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/?page={page}")
+def get_all_staff(token, params, page=1):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/?page={page}", params=params)
 	dict = json.loads(response.text)
 	return dict, response.status_code
 
