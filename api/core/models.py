@@ -61,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		('Admin', 'Admin'),
 		('Student', 'Student'),
 		('Staff', 'Staff'),
+		('Parent', 'Parent'),
 	))
 
 	objects = UserManager()
@@ -100,3 +101,20 @@ class PasswordResetRequest(models.Model):
 
 	def __str__(self):
 		return self.key
+
+class ChatbotProblemQuery(models.Model):
+	user_email = models.EmailField(max_length=254, unique=False, validators=[email_validator])
+	query = models.TextField(verbose_name="Query")
+	history = models.TextField(default='[]')
+	created = models.DateTimeField(auto_now_add=True)
+	status = models.CharField(max_length=10, choices=(
+		('Pending', 'Pending'),
+		('Ignored', 'Ignored'),
+		('Answered', 'Answered'),
+	))
+
+	class Meta:
+		verbose_name_plural = "ChatbotProblemQueries"
+
+	def __str__(self):
+		return f"{self.user_email}: {self.query[:10] + '..' * (len(self.query) > 10)}"

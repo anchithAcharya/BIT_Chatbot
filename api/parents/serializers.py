@@ -1,4 +1,4 @@
-from .models import Student
+from .models import Parent
 from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
@@ -8,30 +8,28 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 import os
 
-# Student serializer
-class StudentDefaultSerializer(serializers.ModelSerializer):
+# Parent serializer
+class ParentDefaultSerializer(serializers.ModelSerializer):
 	id = serializers.CharField(source='user.id')
 	email = serializers.EmailField(source='user.email')
 	name = serializers.CharField(source='user.name')
-	current_sem = serializers.IntegerField(required=False, default=1)
 
 	class Meta:
-		model = Student
-		fields = ('id', 'image', 'email', 'name', 'current_sem', 'branch', 'phone')
+		model = Parent
+		fields = ('id', 'image', 'email', 'name', 'student', 'phone')
 
 	def create(self, validated_data):
 		user = get_user_model().objects.create_user(
 			id=validated_data['user']['id'],
 			email=validated_data['user']['email'],
 			name=validated_data['user']['name'],
-			user_type='Student'
+			user_type='Parent'
 		)
 
-		return Student.objects.create(
+		return Parent.objects.create(
 			user=user,
 			image=validated_data.get('image'),
-			current_sem=validated_data.get('current_sem'),
-			branch=validated_data.get('branch'),
+			student=validated_data.get('student'),
 			phone=validated_data.get('phone'))
 
 	def update(self, instance, validated_data):
@@ -49,7 +47,7 @@ class StudentDefaultSerializer(serializers.ModelSerializer):
 		return super().update(instance, validated_data)
 
 
-class StudentUpdationSerializer_Student(StudentDefaultSerializer):
+class ParentUpdationSerializer_Parent(ParentDefaultSerializer):
 	password = serializers.CharField(
 		source = 'user.password',
 		style={'input_type': 'password'},
@@ -68,12 +66,11 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 	)
 
 	class Meta:
-		model = Student
+		model = Parent
 		fields = ('id', 'image', 'email', 'name', 'phone', 'old_password', 'password', 'password_confirm')
-		restricted = ('id', 'branch', 'current_sem')
+		restricted = ('id', 'student')
 		extra_kwargs = {
-			'branch': {'read_only': True, 'required': False},
-			'current_sem': {'read_only': True, 'required': False},
+			'student': {'read_only': True, 'required': False},
 			'image': {'required': False}
 		}
 
@@ -96,37 +93,37 @@ class StudentUpdationSerializer_Student(StudentDefaultSerializer):
 
 		else: return super().update(instance, validated_data)
 
-class StudentUpdationSerializer_Admin(StudentDefaultSerializer):
+class ParentUpdationSerializer_Admin(ParentDefaultSerializer):
 	email = None
 	phone = None
 
 	class Meta:
-		model = Student
-		fields = ('id', 'name', 'current_sem', 'branch')
+		model = Parent
+		fields = ('id', 'name', 'student')
 		restricted = ('id', 'image', 'email', 'phone', 'password')
 
 
-class StudentQuerySerializer(StudentDefaultSerializer):
+class ParentQuerySerializer(ParentDefaultSerializer):
 	email = serializers.CharField(max_length=254)
 	branch = serializers.CharField(max_length=200)
 
 	class Meta:
-		model = Student
+		model = Parent
 		exclude = ('image',)
 
 
 # delete old image when adding new image
-@receiver(pre_save, sender=Student)
+@receiver(pre_save, sender=Parent)
 def delete_old_image(sender, instance, **kwargs):
     # on creation, signal callback won't be triggered 
     if instance._state.adding and not instance.pk:
         return False
-    
+
     try:
         old_image = sender.objects.get(pk=instance.pk).image
     except sender.DoesNotExist:
         return False
-    
+
     # comparing the new image with the old one
     image = instance.image
     if old_image and old_image != image:

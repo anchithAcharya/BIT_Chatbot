@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	'core',
 	'student',
 	'staff',
+	'parents',
 	'academics',
 	'corsheaders',
 	'rest_framework',

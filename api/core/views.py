@@ -1,13 +1,15 @@
 from rest_framework.decorators import api_view
-
 from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import status
+from rest_framework import viewsets
 from django.core.mail import send_mail
+from .models import ChatbotProblemQuery
 from rest_framework.response import Response
 from core.models import PasswordResetRequest
 from django.contrib.auth import get_user_model
+from .serializers import ChatbotQuerySerializer
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login as auth_login
@@ -43,6 +45,9 @@ def core_login(request, user_type='Admin'):
 
 		elif user_type == 'Staff':
 			return Response({'id': f"User with id {id} is not a staff member."}, status=status.HTTP_400_BAD_REQUEST)
+
+		elif user_type == 'Parent':
+			return Response({'id': f"User with id {id} is not a parent."}, status=status.HTTP_400_BAD_REQUEST)
 
 	# authenticate user
 	user = authenticate(username=user.id, password=password)
@@ -172,3 +177,8 @@ def forgot_password(request):
 @api_view(['POST'])
 def password_reset(request):
 	return core_password_reset(request)
+
+
+class ChatbotProblemQueryViewSet(viewsets.ModelViewSet):
+	queryset = ChatbotProblemQuery.objects.all()
+	serializer_class = ChatbotQuerySerializer

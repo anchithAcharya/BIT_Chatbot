@@ -136,12 +136,19 @@ class StaffViewSet(viewsets.ModelViewSet):
 
 
 	def dispatch(self, request, *args, **kwargs):
-		if not self.detail:
-			kwargs.pop('user_id', None)
+		try:
+			if not self.detail:
+				kwargs.pop('user_id', None)
 
-		else:
-			req = self.initialize_request(request, *args, **kwargs)
-			kwargs['user_id'] = req.user.id
+			else:
+				req = self.initialize_request(request, *args, **kwargs)
+				kwargs['user_id'] = req.user.id
+
+		except Exception as exc:
+			self.headers = self.default_response_headers
+			response = self.handle_exception(exc)
+			self.response = self.finalize_response(request, response, *args, **kwargs)
+			return self.response
 
 		return super().dispatch(request, *args, **kwargs)
 

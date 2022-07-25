@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import ChatbotProblemQuery
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
@@ -28,3 +29,8 @@ class UserUpdationSerializer(serializers.ModelSerializer):
 			validated_data.pop('password')
 
 		return super().update(instance, validated_data)
+
+class ChatbotQuerySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ChatbotProblemQuery
+		fields = '__all__'

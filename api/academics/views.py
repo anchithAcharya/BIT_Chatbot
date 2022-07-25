@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from core.permissions import isAdmin, isStaff, isOwner
+from core.permissions import isAdmin, isStaff, isOwner, isStudentsParent
 
 
 @api_view(['GET'])
@@ -98,7 +98,7 @@ class MarksViewSet(viewsets.ModelViewSet):
 		return obj
 
 	def get_permissions(self):
-		self.permission_classes = (isStaff|isAdmin|isOwner,)
+		self.permission_classes = (isStaff|isAdmin|isOwner|isStudentsParent,)
 		return super().get_permissions()
 
 class AttendanceViewSet(viewsets.ModelViewSet):
@@ -178,5 +178,5 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 		return obj
 
 	def get_permissions(self):
-		self.permission_classes = (isStaff|isAdmin|isOwner,)
+		self.permission_classes = (isStaff|isAdmin|isOwner|isStudentsParent,)
 		return super().get_permissions()
