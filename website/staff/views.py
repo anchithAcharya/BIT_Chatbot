@@ -35,7 +35,6 @@ def home(request):
 	token = request.COOKIES.get('token')
 
 	staff, status_code = staff_api.get_account_details(token)
-	staff['name'] = staff['name'].split()[0]
 
 	if status_code != 200:
 		messages.error(request, 'There was a problem fetching your account details. Please login again.')
@@ -280,7 +279,7 @@ def account(request):
 			image = data.pop('image', None)
 			files = {'image': (image.name, image.read(), image.content_type)} if image else {}
 
-			response, status_code = staff_api.edit_account_details(token, staff['id'], data, files)
+			response, status_code = staff_api.edit_account_details(token, data, files)
 
 			if status_code == 200:
 				messages.success(request, "Account details updated successfully.")

@@ -1,20 +1,50 @@
-<h1>Student Data Portal</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load static %}
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{% static 'student/home.css' %}" />
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+	<title>Document</title>
+</head>
+<body style="background-color: beige;">
+<!-- arvind chat bot start-->
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<df-messenger
+	chat-icon="https:&#x2F;&#x2F;upload.wikimedia.org&#x2F;wikipedia&#x2F;en&#x2F;d&#x2F;d7&#x2F;Bangalore_Institute_of_Technology_logo.png"
+	intent="WELCOME"
+	chat-title="BIT Chatbot"
+	agent-id="ba0a214e-6935-4453-9158-f1bfecf59f72"
+	language-code="en"
+></df-messenger>
+<!-- arvind chat bot end -->
+<div class="welcomeMsg">
+		<h1>Student Data Portal</h1>
+	{% for msg in messages %}
+		{{ msg }}<br><br>
+	{% endfor %}
 
-<h2>Welcome {{ student.name }}!</h2>
+	<div class="UNwelcome">
+		<h2 style="display: inline;">Welcome {{ student.name }}!</h2>
+		<a class="logout" href="{% url 'student_logout' %}"><button>Logout</button></a>	
+	</div>
+</div>
 
-<ul>
-	<li><a href="{% url 'student_account' %}">Student account</a></li>
-	<li><a href="{% url 'student_marks' %}">Student Marks</a></li>
-	<li><a href="{% url 'student_attendance' %}">Student Attendance</a></li>
-</ul>
+<hr>
+
+<div class="allContent">
+	<ul>
+		<button class="fill"><li><a href="{% url 'student_account' %}">Student account</a></li></button>
+		<button class="fill"><li><a href="{% url 'student_marks' %}">Student Marks</a></li></button>
+		<button class="fill"><li><a href="{% url 'student_attendance' %}">Student Attendance</a></li></button>
+	</ul>
+</div>
 
 {% if marks %}
-Marks brief:<br>
-<table border="1">
+<h1>Marks brief:</h1><br>
+<!-- <table border="1">
 	<tr>
 		<th>Subject</th>
 		<th>Test 1</th>
@@ -36,28 +66,79 @@ Marks brief:<br>
 			{% if mark.externalMarks %} <td> {{ mark.externalMarks }}/{{ mark.externalTotal }} </td> {% else %} <td> - </td> {% endif %}
 		</tr>
 	{% endfor %}
+</table> -->
+
+<table>
+      <thead>
+        <tr>
+          <th scope="col">Subject</th>
+          <th scope="col">Test 1</th>
+          <th scope="col">Test 2</th>
+		  <th scope="col">Test 3</th>
+		  <th scope="col">Assignment 1</th>
+		  <th scope="col">Assignment 2</th>
+		  <th scope="col">Externals</th>
+        </tr>
+      </thead>
+	  
+      <tbody>
+		{% for mark in marks %}
+			<tr>
+			<th scope="row">{{ mark.subject }}</th>
+			{% if mark.test1Marks %} <td> {{ mark.test1Marks }}/{{ mark.test1Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.test2Marks %} <td> {{ mark.test2Marks }}/{{ mark.test2Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.test3Marks %} <td> {{ mark.test3Marks }}/{{ mark.test3Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.assignment1Marks %} <td> {{ mark.assignment1Marks }}/{{ mark.assignment1Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.assignment2Marks %} <td> {{ mark.assignment2Marks }}/{{ mark.assignment2Total }} </td> {% else %} <td> - </td> {% endif %}
+			{% if mark.externalMarks %} <td> {{ mark.externalMarks }}/{{ mark.externalTotal }} </td> {% else %} <td> - </td> {% endif %}
+			</tr>
+		{% endfor %}
+      </tbody>
 </table>
+
+
+
+
 {% endif %}
 
 <br><br>
 
 {% if attendance %}
-Attendance brief:<br>
-<table border="1">
-	<tr>
-		<th>Subject</th>
-		<th>Test 1 (%)</th>
-		<th>Test 2 (%)</th>
-		<th>Test 3 (%)</th>
-	</tr>
+<h1>Attendance brief:</h1><br>
+<table>
+	<thead>
+        <tr>
+          <th scope="col">Subject</th>
+          <th scope="col">Test 1 (%)</th>
+          <th scope="col">Test 2 (%)</th>
+		  <th scope="col">Test 3 (%)</th>
+        </tr>
+    </thead>
 
-	{% for att in attendance %}
+
+	<!-- {% for att in attendance %}
 		<tr>
 			<th> {{ att.subject }} </th>
 			{% if att.test1Attendance %} <td> {{ att.test1Attendance }} </td> {% else %} <td> - </td> {% endif %}
 			{% if att.test2Attendance %} <td> {{ att.test2Attendance }} </td> {% else %} <td> - </td> {% endif %}
 			{% if att.test3Attendance %} <td> {{ att.test3Attendance }} </td> {% else %} <td> - </td> {% endif %}
 		</tr>
-	{% endfor %}
+	{% endfor %} -->
+
+
+	<tbody>
+		{% for att in attendance %}
+			<tr>
+			<th scope="row">{{ att.subject }}</th>
+				{% if att.test1Attendance %} <td> {{ att.test1Attendance }} </td> {% else %} <td> - </td> {% endif %}
+				{% if att.test2Attendance %} <td> {{ att.test2Attendance }} </td> {% else %} <td> - </td> {% endif %}
+				{% if att.test3Attendance %} <td> {{ att.test3Attendance }} </td> {% else %} <td> - </td> {% endif %}
+			</tr>
+		{% endfor %}
+    </tbody>
+
+
 </table>
 {% endif %}
+</body>
+</html>

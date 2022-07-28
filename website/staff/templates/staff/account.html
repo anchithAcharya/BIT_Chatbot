@@ -1,23 +1,45 @@
-<h1>Staff Account</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'staff/account.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <h1>Staff Account</h1>
+    <hr />
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    {% for msg in messages %} {{ msg }}<br /><br />
+    {% endfor %}
 
-<form action="{% url 'staff_account' %}", method="post", enctype="multipart/form-data">
-	{% csrf_token %}
+    <form
+      action="{% url 'staff_account' %}"
+      ,
+      method="post"
+      ,
+      enctype="multipart/form-data"
+    >
+      {% csrf_token %}
+      {% if staff.image or form.image.url %}
 	<img src="{% firstof form.image.url staff.image %}" alt="Profile picture for {{ staff.name }}"><br>
-	{{ form.image }}<br>
-	{{ form.image.errors }}<br>
-	ID: {{ staff.id }}<br>
-	Name: {{ form.name }}<br>
-	{{ form.name.errors }}<br>
-	Email: {{ form.email }}<br>
-	{{ form.email.errors }}<br>
-	Phone: {{ form.phone }}<br>
-	{{ form.phone.errors }}<br>
-	Branch: {{ staff.branch }}<br>
-	<input type="submit" value="Edit">
-</form>
+	{% endif %}
+      <center>ID: {{ staff.id }}</center>
+      <br />
+      Name: {{ form.name }}<br />
+      {{ form.name.errors }}<br />
+      Email: {{ form.email }}<br />
+      {{ form.email.errors }}<br />
+      Phone: {{ form.phone }}<br />
+      {{ form.phone.errors }}<br />
+      Branch: {{ staff.branch }}<br />
+      <div class="actions">
+        <button type="submit">Edit</button>
+      </div>
+    </form>
 
-<a href="{% url 'staff_change_password' %}">Change Password</a>
+    <!-- <a href="{% url 'staff_change_password' %}">Change Password</a> -->
+  </body>
+</html>

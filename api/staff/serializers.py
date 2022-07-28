@@ -33,7 +33,7 @@ class StaffDefaultSerializer(serializers.ModelSerializer):
 			user=user,
 			image=validated_data.get('image'),
 			branch=validated_data['branch'],
-			phone=validated_data['phone'])
+			phone=validated_data.get('phone', ''))
 
 	def update(self, instance, validated_data):
 		if validated_data.get('user'):

@@ -1,19 +1,38 @@
-<h1>Student Details</h1>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load static %}
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{% static 'admin/students/details.css' %}" />
+	<title>Document</title>
+</head>
+<body style="background-color: beige;">
+	<h1>Student Details</h1>
+<hr>
 {% for msg in messages %}
 	{{ msg }}<br><br>
 {% endfor %}
 
+<!-- {% if student.image %}
 <img src="{{ student.image }}" alt="Profile picture for {{ student.name }}">
+{% endif %} -->
 
 <form action="{% url 'admin_students_edit' student.id %}", method="post">
 	{% csrf_token %}
-	ID: {{ student.id }}<br>
+	<center>ID: {{ student.id }}</center><br>
 	Name: {{ form.name }}<br>
-	Email: {{ student.email }}<br>
-	Phone: {% firstof item.phone '-' %}<br>
+	{{ form.name.errors }}<br>
+	Email: {{ student.email }}<br><br>
+	Phone: {% firstof student.phone '-' %}<br><br>
 	Branch: {{ form.branch }}<br>
+	{{ form.branch.errors }}<br>
 	Current Semester: {{ form.current_sem }}<br>
-	<input type="submit" value="Edit"><br><br>
-	<button type="submit" formaction="{% url 'admin_students_delete' student.id %}">Delete Student</button>
+	{{ form.current_sem.errors }}<br>
+	<div class="actions"><button type="submit" >Edit</button></div><br><br>
+	<center><input type="submit" formaction="{% url 'admin_students_delete' student.id %}" value="Delete Student"></center>
 </form>
+
+</body>
+</html>

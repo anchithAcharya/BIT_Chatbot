@@ -30,7 +30,7 @@ class ParentDefaultSerializer(serializers.ModelSerializer):
 			user=user,
 			image=validated_data.get('image'),
 			student=validated_data.get('student'),
-			phone=validated_data.get('phone'))
+			phone=validated_data.get('phone', ''))
 
 	def update(self, instance, validated_data):
 		if validated_data.get('user'):

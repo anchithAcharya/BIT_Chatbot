@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'common',
     'admin',
     'student',
+    'parent',
     'staff',
 ]
 

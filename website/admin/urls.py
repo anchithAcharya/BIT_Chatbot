@@ -23,4 +23,11 @@ urlpatterns = [
     path('staff/create', admin_views.create_staff, name='admin_create_staff'),
     path('staff/edit/<id>', admin_views.edit_staff, name='admin_staff_edit'),
     path('staff/delete/<id>', admin_views.delete_staff, name='admin_staff_delete'),
+
+    path('parents', admin_views.parents, name='admin_parents'),
+    path('parents/dashboard', admin_views.parents_dashboard, name='admin_parents_dashboard'),
+    path('parents/detail/<id>', admin_views.parents_details, name='admin_parents_details'),
+    path('parents/create', admin_views.create_parents, name='admin_create_parents'),
+    path('parents/edit/<id>', admin_views.edit_parents, name='admin_parents_edit'),
+    path('parents/delete/<id>', admin_views.delete_parents, name='admin_parents_delete'),
 ]

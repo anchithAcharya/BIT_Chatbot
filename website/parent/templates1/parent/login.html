@@ -1,0 +1,13 @@
+<h1>Parent Login</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'parent_login' %}" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.id }}<br>
+	{{ form.password }}<br>
+	<input type="submit" value="Login">
+</form>
+<a href="{% url 'parent_forgot_password' %}">Forgot password?</a>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'student/marks.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <h1>{{ student_id }} Marks</h1>
+    <hr />
+
+    {% if marks_report %} <b> Marks report: </b><br />
+    {% for sem, marks in marks_report.items %}
+    <h4>Semester {{ sem }}:</h4>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Subject</th>
+          <th scope="col">Test 1</th>
+          <th scope="col">Test 2</th>
+          <th scope="col">Test 3</th>
+          <th scope="col">Assignment 1</th>
+          <th scope="col">Assignment 2</th>
+          <th scope="col">Externals</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for mark in marks %}
+        <tr>
+          <th scope="row">{{ mark.subject }}</th>
+          {% if mark.test1Marks %}
+          <td>{{ mark.test1Marks }}/{{ mark.test1Total }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if mark.test2Marks %}
+          <td>{{ mark.test2Marks }}/{{ mark.test2Total }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if mark.test3Marks %}
+          <td>{{ mark.test3Marks }}/{{ mark.test3Total }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if mark.assignment1Marks %}
+          <td>{{ mark.assignment1Marks }}/{{ mark.assignment1Total }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if mark.assignment2Marks %}
+          <td>{{ mark.assignment2Marks }}/{{ mark.assignment2Total }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if mark.externalMarks %}
+          <td>{{ mark.externalMarks }}/{{ mark.externalTotal }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %} {% endif %}
+	<br><br><br>
+  </body>
+</html>

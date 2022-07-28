@@ -1,0 +1,135 @@
+body {
+  background-color: beige;
+  background-image: url("https://cdn.discordapp.com/attachments/673227660029329438/995765220582629526/Bangalore_Institute_of_Technology_logo_1.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh;
+}
+
+form {
+  color: #ffffff;
+  width: 400px;
+  background-color: rgba(49, 49, 49, 0.599);
+  position: absolute;
+
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 75%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  padding: 50px 35px;
+}
+form * {
+  font-family: "Poppins", sans-serif;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  outline: none;
+  border: none;
+}
+form h1 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 76px;
+  text-align: center;
+  color: whitesmoke;
+}
+
+label {
+  display: block;
+  color: #ffffff;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+option {
+  background-color: rgba(243, 243, 243, 0.616);
+  color: #000000;
+}
+
+select {
+  background-color: rgba(243, 243, 243, 0.616);
+  border-radius: 5px;
+  height: 50px;
+  color: #000000;
+}
+
+input {
+  display: block;
+  height: 40px;
+  width: 100%;
+  background-color: rgba(243, 243, 243, 0.616);
+  border-radius: 5px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.actions {
+  display: flex;
+}
+
+button {
+  color: black;
+  margin: auto;
+  height: 40px;
+  width: 100px;
+  border-radius: 5px;
+  padding: 0 10px;
+}
+
+::placeholder {
+  color: #e5e5e5;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.847);
+  box-shadow: 0 1px 18px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 14px;
+  padding: 1rem;
+  width: 30%;
+}
+
+.heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* table css */
+
+table {
+  max-width: 960px;
+  /* margin: 10px auto; */
+}
+
+caption {
+  font-size: 1.6em;
+  font-weight: 400;
+  padding: 10px 0;
+}
+
+thead th {
+  font-weight: bolder;
+  background: #a6c390;
+  color: #fff;
+}
+
+tr {
+  background: #f4f7f8;
+  border-bottom: 1px solid #fff;
+  margin-bottom: 5px;
+}
+
+tr:nth-child(even) {
+  background: #e8eeef;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 20px;
+  font-weight: 300;
+}

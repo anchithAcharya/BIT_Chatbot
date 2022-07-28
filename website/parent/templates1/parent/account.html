@@ -1,0 +1,25 @@
+<h1>Parent Account</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<form action="{% url 'parent_account' %}", method="post", enctype="multipart/form-data">
+	{% csrf_token %}
+
+	{% if parent.image or form.image.url %}
+	<img src="{% firstof form.image.url parent.image %}" alt="Profile picture for {{ parent.name }}"><br>
+	{% endif %}
+
+	{{ form.image }}<br>
+	{{ form.image.errors }}<br>
+	ID: {{ parent.id }}<br>
+	Name: {{ form.name }}<br>
+	{{ form.name.errors }}<br>
+	Email: {{ form.email }}<br>
+	{{ form.email.errors }}<br>
+	Phone: {{ form.phone }}<br>
+	{{ form.phone.errors }}<br>
+	Ward ID: {{ parent.student }}<br><br>
+	<input type="submit" value="Edit">
+</form>

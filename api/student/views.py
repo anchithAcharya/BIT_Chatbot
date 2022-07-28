@@ -23,7 +23,7 @@ from academics.models import Subject, Marks, Attendance
 from academics.serializers import MarksSerializer, AttendanceSerializer
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from core.permissions import isAdmin, isStudent, isStaff, isStudentsParent
+from core.permissions import isAdmin, isStudent, isStaff
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -44,7 +44,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 	}
 
 	detail_permissions = {
-		'GET': isAdmin|isStaff|isStudent|isStudentsParent,
+		'GET': isAdmin|isStaff|isStudent,
 		'PUT': isAdmin|isStudent,
 		'PATCH': isAdmin|isStudent,
 		'DELETE': isAdmin
@@ -218,7 +218,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 			else:
 				req = self.initialize_request(request, *args, **kwargs)
-				kwargs['user_id'] = req.user.id
+				if kwargs['user_id'] == 'me': kwargs['user_id'] = req.user.id
 
 		except Exception as exc:
 			self.headers = self.default_response_headers

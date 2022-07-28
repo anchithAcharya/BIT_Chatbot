@@ -1,0 +1,31 @@
+<h1> {{ student_id }} Marks</h1>
+
+{% if marks_report %}
+	Marks report:<br>
+	{% for sem, marks in marks_report.items %}
+		<h4>Semester {{ sem }}:</h4>
+		<table border="1">
+			<tr>
+				<th>Subject</th>
+				<th>Test 1</th>
+				<th>Test 2</th>
+				<th>Test 3</th>
+				<th>Assignment 1</th>
+				<th>Assignment 2</th>
+				<th>Externals</th>
+			</tr>
+	
+			{% for mark in marks %}
+			<tr>
+				<th> {{ mark.subject }} </th>
+				{% if mark.test1Marks %} <td> {{ mark.test1Marks }}/{{ mark.test1Total }} </td> {% else %} <td> - </td> {% endif %}
+				{% if mark.test2Marks %} <td> {{ mark.test2Marks }}/{{ mark.test2Total }} </td> {% else %} <td> - </td> {% endif %}
+				{% if mark.test3Marks %} <td> {{ mark.test3Marks }}/{{ mark.test3Total }} </td> {% else %} <td> - </td> {% endif %}
+				{% if mark.assignment1Marks %} <td> {{ mark.assignment1Marks }}/{{ mark.assignment1Total }} </td> {% else %} <td> - </td> {% endif %}
+				{% if mark.assignment2Marks %} <td> {{ mark.assignment2Marks }}/{{ mark.assignment2Total }} </td> {% else %} <td> - </td> {% endif %}
+				{% if mark.externalMarks %} <td> {{ mark.externalMarks }}/{{ mark.externalTotal }} </td> {% else %} <td> - </td> {% endif %}
+			</tr>
+			{% endfor %}
+		</table>
+	{% endfor %}
+{% endif %}

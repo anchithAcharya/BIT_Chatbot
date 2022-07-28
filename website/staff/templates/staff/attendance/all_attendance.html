@@ -1,53 +1,79 @@
-<h1>Attendance</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'staff/all_attendance.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <h1>Attendance</h1>
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    {% for msg in messages %} {{ msg }}<br /><br />
+    {% endfor %}
 
-<a href="{% url 'staff_add_attendance' %}">Add attendance</a>
+    <a href="{% url 'staff_add_attendance' %}"><b> Add attendance</b></a>
+    <br /><br />
 
-<form action="{% url 'staff_list_attendance' %}", method="post">
-	{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" value="Search" />
-</form>
+    <form action="{% url 'staff_list_attendance' %}" , method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <div class="actions">
+        <button type="submit">Search</button>
+      </div>
+    </form>
 
-{% if all_attendance %}
-	Results:<br>
-	{% for student, attendance in all_attendance.items %}
-		<h4>USN {{ student }}:</h4>
-		<table border="1">
-			<tr>
-				<th>Subject</th>
-				<th>Test 1 (%)</th>
-				<th>Test 2 (%)</th>
-				<th>Test 3 (%)</th>
-			</tr>
-		
-			{% for att in attendance %}
-				<tr>
-					<th> <a href="{% url 'staff_detail_attendance' %}?student={{ student }}&subject={{ att.subject }}">{{ att.subject }}</a> </th>
-					{% if att.test1Attendance %} <td> {{ att.test1Attendance }} </td> {% else %} <td> - </td> {% endif %}
-					{% if att.test2Attendance %} <td> {{ att.test2Attendance }} </td> {% else %} <td> - </td> {% endif %}
-					{% if att.test3Attendance %} <td> {{ att.test3Attendance }} </td> {% else %} <td> - </td> {% endif %}
-				</tr>
-			{% endfor %}
-		</table>
-	{% endfor %}
-{% endif %}
+    {% if all_attendance %} <b> Results:</b><br />
+    {% for student, attendance in all_attendance.items %}
+    <h4>USN {{ student }}:</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Test 1 (%)</th>
+          <th>Test 2 (%)</th>
+          <th>Test 3 (%)</th>
+        </tr>
+      </thead>
 
-<br><br>
-{% if prev_page_no %}
-	<a href="{% url 'staff_list_attendance' %}?page={{ prev_page_no }}">Previous</a>
-	<br>
-{% endif %}
-	
-{% if next_page_no %}
-	<a href="{% url 'staff_list_attendance' %}?page={{ next_page_no }}">Next</a>
-	<br>
-{% endif %}
+      <tbody>
+        {% for att in attendance %}
+        <tr>
+          <th scope="row">
+           {{ att.subject }}
+          </th>
+          {% if att.test1Attendance %}
+          <td>{{ att.test1Attendance }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if att.test2Attendance %}
+          <td>{{ att.test2Attendance }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %} {% if att.test3Attendance %}
+          <td>{{ att.test3Attendance }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %} {% endif %}
 
-Page no: 
-{% for page_no in total_pages %}
-	<a href="{% url 'staff_list_attendance' %}?page={{ page_no }}">{{ page_no }}</a>&nbsp;
-{% endfor %}
+    <br /><br />
+    {% if prev_page_no %}
+    <a href="{% url 'staff_list_attendance' %}?page={{ prev_page_no }}"
+      >Previous</a
+    >
+    <br />
+    {% endif %} {% if next_page_no %}
+    <a href="{% url 'staff_list_attendance' %}?page={{ next_page_no }}">Next</a>
+    <br />
+    {% endif %} Page no: {% for page_no in total_pages %}
+    <a href="{% url 'staff_list_attendance' %}?page={{ page_no }}"
+      >{{ page_no }}</a
+    >&nbsp; {% endfor %}
+  </body>
+</html>

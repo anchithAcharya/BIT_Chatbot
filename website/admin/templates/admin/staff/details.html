@@ -1,18 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'admin/staff/details.css' %}" />
+	<title>Document</title>
+</head>
+<body style="background-color: beige;">
+	
 <h1>Staff Details</h1>
-
+<hr>
 {% for msg in messages %}
 	{{ msg }}<br><br>
 {% endfor %}
 
-<img src="{{ staff.image }}" alt="Profile picture for {{ staff.name }}">
+{% if staff.image %}
+<img src="{{ staff.image }}">
+{% endif %}
 
 <form action="{% url 'admin_staff_edit' staff.id %}", method="post">
 	{% csrf_token %}
-	ID: {{ staff.id }}<br>
+	<center>ID: {{ staff.id }}</center><br>
 	Name: {{ form.name }}<br>
-	Email: {{ staff.email }}<br>
-	Phone: {% firstof item.phone '-' %}<br>
+	{{ form.name.errors }}<br>
+	Email: {{ staff.email }}<br><br>
+	Phone: {% firstof staff.phone '-' %}<br><br>
 	Branch: {{ form.branch }}<br>
-	<input type="submit" value="Edit"><br><br>
-	<button type="submit" formaction="{% url 'admin_staff_delete' staff.id %}">Delete Staff</button>
+	{{ form.branch.errors }}<br>
+	<div class="actions"><button type="submit" >Edit</button></div><br><br>
+		<center><input type="submit" formaction="{% url 'admin_staff_delete' staff.id %}" value="Delete Staff"></center>
 </form>
+</body>
+</html>

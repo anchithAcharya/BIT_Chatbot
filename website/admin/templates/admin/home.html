@@ -1,14 +1,59 @@
-<h1>Admin Home</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'admin/home.css' %}" />
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <div class="welcomeMsg">
+	<h1>Admin Home</h1>
 
-<ul>
-	<li><a href="{% url 'admin_students' %}">Manage students</a></li>
-	<li><a href="{% url 'admin_staff' %}">Manage staff</a></li>
-	<li><a href="#">Manage parents</a></li>
-	{% comment %}
-	<li><a href="{% url 'parents' %}">Manage parents</a></li>
-	{% endcomment %}
-</ul>
+	{% for msg in messages %}
+		{{ msg }}<br><br>
+	{% endfor %}
+</div> -->
+    <!-- arvind chat bot start-->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+      chat-icon="https:&#x2F;&#x2F;upload.wikimedia.org&#x2F;wikipedia&#x2F;en&#x2F;d&#x2F;d7&#x2F;Bangalore_Institute_of_Technology_logo.png"
+      intent="WELCOME"
+      chat-title="BIT Chatbot"
+      agent-id="ba0a214e-6935-4453-9158-f1bfecf59f72"
+      language-code="en"
+    ></df-messenger>
+    <!-- arvind chat bot end -->
+
+    <div class="welcomeMsg">
+      <h1>Admin Home</h1>
+
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+
+      <div class="UNwelcome">
+        <a class href="{% url 'admin_logout' %}"
+          ><button class="logout">Logout</button></a
+        >
+      </div>
+    </div>
+
+    <hr />
+    <div class="allContent">
+      <ul>
+        <button class="fill">
+          <li><a href="{% url 'admin_students' %}">Manage students</a></li>
+        </button>
+        <button class="fill">
+          <li><a href="{% url 'admin_staff' %}">Manage staff</a></li>
+        </button>
+        <button class="fill">
+          <li><a href="{% url 'admin_parents' %}">Manage parents</a></li>
+        </button>
+      </ul>
+    </div>
+  </body>
+</html>

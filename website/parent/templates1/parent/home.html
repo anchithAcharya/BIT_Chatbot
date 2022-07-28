@@ -1,0 +1,14 @@
+<h1>Parent Data Portal</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+<h2>Welcome {{ parent.name }}!</h2>
+
+<ul>
+	<li><a href="{% url 'parent_account' %}">Parent account</a></li>
+	<li><a href="{% url 'parent_student_account' %}">Ward account</a></li>
+	<li><a href="{% url 'parent_student_marks' %}">Ward Marks</a></li>
+	<li><a href="{% url 'parent_student_attendance' %}">Ward Attendance</a></li>
+</ul>

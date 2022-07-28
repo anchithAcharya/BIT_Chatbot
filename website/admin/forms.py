@@ -20,10 +20,17 @@ class CreateStaffForm(forms.Form):
 		super().__init__(*args, **kwargs)
 		self.fields['branch'].choices = choices
 
-	id = forms.CharField(max_length=15, label='USN')
+	id = forms.CharField(max_length=15, label='ID')
 	email = forms.EmailField(max_length = 254, label='Email')
 	name = forms.CharField(max_length=100, label='Name')
 	branch = forms.ChoiceField(choices=(), label='Branch')
+
+class CreateParentForm(forms.Form):
+	id = forms.CharField(max_length=15, label='ID')
+	email = forms.EmailField(max_length = 254, label='Email')
+	name = forms.CharField(max_length=100, label='Name')
+	student = forms.CharField(max_length=20, label='Child USN')
+	phone = forms.CharField(max_length=10, label='Phone')
 
 
 class EditStudentForm(forms.Form):
@@ -35,6 +42,19 @@ class EditStaffForm(forms.Form):
 	name = forms.CharField(max_length=254, label='Name')
 	branch = forms.CharField(max_length=64, label='Branch')
 
+class EditParentForm(forms.Form):
+	name = forms.CharField(max_length=254, label='Name')
+	student = forms.CharField(max_length=20, label='Child USN')
+
 
 class StaffQueryForm(StudentQueryForm):
+	usn = None
 	current_sem = None
+
+	id = forms.CharField(label='Staff ID', required=False)
+
+class ParentQueryForm(StaffQueryForm):
+	id = forms.CharField(label='Parent ID', required=False)
+	name = forms.CharField(label='Name', required=False)
+	email = forms.CharField(label='Email', required=False)
+	phone = forms.CharField(label='Phone', required=False)

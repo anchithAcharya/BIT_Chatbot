@@ -31,8 +31,7 @@ class StudentDefaultSerializer(serializers.ModelSerializer):
 			user=user,
 			image=validated_data.get('image'),
 			current_sem=validated_data.get('current_sem'),
-			branch=validated_data.get('branch'),
-			phone=validated_data.get('phone'))
+			branch=validated_data.get('branch'))
 
 	def update(self, instance, validated_data):
 		if validated_data.get('user'):

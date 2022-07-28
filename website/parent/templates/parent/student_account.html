@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'staff/student_details.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <h1>Students Details</h1>
+    <hr />
+    <br />
+
+    {% for msg in messages %} {{ msg }}<br /><br />
+    {% endfor %}
+
+    <div class="card">
+      <div class="heading">
+        <span>ID: {{ student.id }}</span> <span>{{ student.name }}</span>
+      </div>
+      <hr />
+      Email: {{ student.email }}<br />
+      Phone: {% firstof student.phone '-' %}<br />
+      Branch: {{ student.branch }}<br />
+      Current Semester: {{ student.current_sem }}<br />
+    </div>
+    <br /><br />
+  </body>
+</html>

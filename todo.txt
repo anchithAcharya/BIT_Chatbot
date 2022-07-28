@@ -1,6 +1,3 @@
 WEBSITE:
-- create content blocks in templates
-- logout button
-- create user button
-- batch create users
-- change password without resetting for admin
+- edit student and staff details bug
+- info messages styling

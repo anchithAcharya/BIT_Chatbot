@@ -142,7 +142,7 @@ class StaffViewSet(viewsets.ModelViewSet):
 
 			else:
 				req = self.initialize_request(request, *args, **kwargs)
-				kwargs['user_id'] = req.user.id
+				if kwargs['user_id'] == 'me': kwargs['user_id'] = req.user.id
 
 		except Exception as exc:
 			self.headers = self.default_response_headers

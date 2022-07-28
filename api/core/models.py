@@ -20,7 +20,7 @@ def email_validator(value):
 
 def name_validator(value):
 	import re
-	if re.fullmatch("([A-Za-z']{2,30}) ([A-Z].? ? )*([A-Za-z']{2,30})? ?([A-Z].? ?)*", value) is None:
+	if re.fullmatch("([A-Za-z']{2,30}) ([A-Z]\.? ? )*([A-Za-z']{2,30})? ?([A-Z]\.? ?)*", value) is None:
 		raise ValidationError(f'Name {value} is not valid.')
 
 

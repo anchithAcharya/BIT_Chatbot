@@ -9,9 +9,12 @@ from common.forms import LoginForm, StudentQueryForm
 from .forms import (
 	EditStudentForm,
 	EditStaffForm,
+	EditParentForm,
 	CreateStudentForm,
 	CreateStaffForm,
-	StaffQueryForm
+	CreateParentForm,
+	StaffQueryForm,
+	ParentQueryForm
 )
 from django.views.decorators.cache import cache_control
 import json
@@ -624,8 +627,215 @@ def delete_staff(request, id):
 		messages.error(request, 'You must be logged in to delete this user.')
 		return redirect('admin_login')
 
-	status_code = admin_api.delete_staff(request.COOKIES.get('token'), id)
+	response, status_code = admin_api.delete_staff(request.COOKIES.get('token'), id)
 
 	if status_code == 200:
 		messages.success(request, 'Staff deleted successfully.')
 		return redirect('admin_staff_dashboard')
+
+# Parents
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def parents(request):
+	return redirect('admin_parents_dashboard')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def parents_dashboard(request):
+	if not request.COOKIES.get('token'):
+		messages.error(request, 'You must be logged in to view the dashboard.')
+		return redirect('admin_login')
+
+	token = request.COOKIES.get('token')
+	page_no = request.GET.get('page', 1)
+
+	choices, status_code = common_api.get_branch_names(token)
+	if status_code == 200: choices.insert(0, ['', 'All'])
+	else: choices = ['', 'All']
+
+	form = ParentQueryForm(request.POST, branch_choices=choices)
+
+	if form.is_valid():
+		data = {k:v for k,v in form.cleaned_data.items() if v}
+		response, status_code = admin_api.get_all_parents(token, data, page=page_no)
+
+		if status_code == 200:
+			response['total_pages'] = range(1, response['total_pages'] + 1)
+			response['form'] = form
+
+			return render(request, 'admin/parents/dashboard.html', response)
+
+		else:
+			if status_code == 404:
+				messages.error(request, f"Invalid or empty page: {page_no}")
+				return redirect('admin_parents_dashboard')
+
+			elif status_code == 401:
+				if request.META.get('HTTP_REFERER') is None:
+					messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+				return redirect('admin_login')
+
+	params = {
+		'form': form
+	}	
+
+	return render(request, 'admin/parents/dashboard.html', params)
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def parents_details(request, id):
+	if not request.COOKIES.get('token'):
+		messages.error(request, 'You must be logged in to view parents details.')
+		return redirect('admin_login')
+
+	initial = json.loads(request.COOKIES.get('initial')) if request.COOKIES.get('initial') else {}
+	errors = json.loads(request.COOKIES.get('errors')) if request.COOKIES.get('errors') else {}
+
+	response, status_code = admin_api.get_parents_details(request.COOKIES.get('token'), id)
+
+	if status_code == 200:
+		for field in initial:
+			response[field] = initial[field]
+
+		form = EditParentForm(response)
+
+		for field in errors:
+			form.add_error(field, errors[field])
+
+		ret = render(request, 'admin/parents/details.html', {'parent': response, 'form': form})
+		ret.delete_cookie('initial')
+		ret.delete_cookie('errors')
+
+		return ret
+
+	else:
+		if status_code == 404:
+			messages.error(request, f"User with id '{id}' not found.")
+			return redirect(request.META.get('HTTP_REFERER') or 'admin_parents_dashboard')
+
+		elif status_code == 401:
+			if request.META.get('HTTP_REFERER') is None:
+				messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+			return redirect('admin_login')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def create_parents(request):
+	if not request.COOKIES.get('token'):
+		messages.error(request, 'You must be logged in to view student details.')
+		return redirect('admin_login')
+
+	token = request.COOKIES.get('token')
+
+	if request.method == 'POST':
+		form = CreateParentForm(request.POST, request.FILES)
+
+		if form.is_valid():
+			response, status_code = admin_api.create_new_parents(token, form.cleaned_data)
+
+			if status_code == 201:
+				messages.success(request, "User created successfully.")
+				
+				response2, status_code2 = admin_api.forgot_password(response['id'])
+
+				if status_code2 == 200:
+					messages.success(request, "Verification email sent to user.")
+
+				else:
+					if status_code2 == 404:
+						messages.error(request, f"There was a problem sending the verification email: User {response['id']} not found. Please check that the user exists and resend the verification email through the forgot password page.")
+
+					if status_code2 == 400:
+						messages.error(request, f"There was a problem sending the verification email. Please resend the verification email through the forgot password page.")
+
+						for field in response2:
+							messages.error(request, field+': '+response[field])
+
+				ret = redirect('admin_parents_details', id=response['id'])
+
+				for field in form.fields:
+					ret.delete_cookie('cparents_form_'+field)
+
+				return ret
+
+			else:
+				if status_code == 400:
+					for field in response:
+						messages.error(request, response[field][0])
+
+					ret = redirect('admin_create_parents')
+					for field in form.fields:
+						ret.set_cookie('cparents_form_'+field, form.cleaned_data[field])
+
+					return ret
+
+				elif status_code == 401:
+					if request.META.get('HTTP_REFERER') is None:
+						messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+					return redirect('admin_login')
+
+		else:
+			for field in form.errors:
+				messages.error(request, f"{field}: {form.errors[field]}")
+
+			ret = redirect('admin_create_parents')
+			for field in form.fields:
+				ret.set_cookie('cparents_form_'+field, form.cleaned_data[field])
+
+			return ret
+
+	else:
+		initial={}
+		for field in CreateParentForm.base_fields:
+			value = request.COOKIES.get('cparents_form_'+field)
+			if value: initial[field] = value
+			elif CreateParentForm.base_fields[field].initial: initial[field] = CreateParentForm.base_fields[field].initial
+
+		params = {'form': CreateParentForm(initial=initial)}
+
+		return render(request, 'admin/parents/create_parents.html', params)
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def edit_parents(request, id):
+	if not request.COOKIES.get('token'):
+		messages.error(request, 'You must be logged in to edit parents details.')
+		return redirect('admin_login')
+
+	response, status_code = admin_api.edit_parents_details(request.COOKIES.get('token'), id, request.POST)
+
+	if status_code == 200:
+		messages.success(request, 'Parents details updated successfully.')
+		return redirect('admin_parents_details', id)
+
+	else:
+		if status_code == 404:
+			messages.error(request, f"User with id '{id}' not found.")
+			return redirect(request.META.get('HTTP_REFERER') or 'admin_parents_dashboard')
+
+		elif status_code == 401:
+			if request.META.get('HTTP_REFERER') is None:
+				messages.error(request, 'Authentication error: ' + response.get('detail', 'Authentication failed.'))
+
+			return redirect('admin_login')
+
+		elif status_code == 400:
+			ret = redirect('admin_parents_details', id)
+			ret.set_cookie('initial', json.dumps(request.POST))
+			ret.set_cookie('errors', json.dumps(response))
+
+			return ret
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def delete_parents(request, id):
+	if not request.COOKIES.get('token'):
+		messages.error(request, 'You must be logged in to delete this user.')
+		return redirect('admin_login')
+
+	response, status_code = admin_api.delete_parents(request.COOKIES.get('token'), id)
+
+	if status_code == 200:
+		messages.success(request, 'Parent deleted successfully.')
+		return redirect('admin_parents_dashboard')
+
+	else:
+		messages.error(request, 'There was a problem deleting this user.')
+		return redirect('admin_parents_details', id)

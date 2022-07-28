@@ -1,11 +1,25 @@
-<h1>Student {{ student }} attendance for Subject {{ subject }}</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'staff/detail_attendance.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <h1>Student {{ student }} attendance for Subject {{ subject }}</h1>
+    <hr />
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    {% for msg in messages %} {{ msg }}<br /><br />
+    {% endfor %}
 
-<form action="{{ action }}" method="post">
-	{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" value="{{ add|yesno:'Add,Edit' }}" />
-</form>
+    <form action="{{ action }}" method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <div class="actions">
+        <button type="submit">{{ add|yesno:'Add,Edit' }}</button>
+      </div>
+    </form>
+  </body>
+</html>

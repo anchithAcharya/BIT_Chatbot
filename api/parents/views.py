@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from academics.models import Subject, Marks, Attendance
+from academics.serializers import MarksSerializer, AttendanceSerializer
 from student.serializers import StudentDefaultSerializer
 from parents.models import Parent
 from parents.serializers import (
@@ -76,6 +78,48 @@ class ParentViewSet(viewsets.ModelViewSet):
 			return Response({'error': 'Parent does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 		return Response(StudentDefaultSerializer(parent.student).data)
+
+	@action(detail=True, methods=['GET'], url_path='student/marks')
+	def marks_report(self, request, user_id):
+		try:
+			parent = Parent.objects.get(user_id=user_id)
+
+		except Parent.DoesNotExist:
+			return Response({"token": f"No parent with ID {user_id} found."}, status=status.HTTP_404_NOT_FOUND)
+
+		student = parent.student
+
+		marks = {}
+		for sem in range(1, student.current_sem+1):
+			subjects = Subject.objects.filter(branch=student.branch, semester=sem)
+			marks[sem] = [student.marks.filter(subject=subject) or [Marks(student=student, subject=subject)] for subject in subjects]
+			marks[sem] = [MarksSerializer(mark[0]).data for mark in marks[sem]]
+
+		response = {sem: marks[sem] for sem in marks if marks[sem]}
+		response['student_id'] = student.user_id
+
+		return Response(response, status=status.HTTP_200_OK)
+
+	@action(detail=True, methods=['GET'], url_path='student/attendance')
+	def attendance_report(self, request, user_id):
+		try:
+			parent = Parent.objects.get(user_id=user_id)
+
+		except Parent.DoesNotExist:
+			return Response({"token": f"No parent with ID {user_id} found."}, status=status.HTTP_404_NOT_FOUND)
+
+		student = parent.student
+
+		attendance = {}
+		for sem in range(1, student.current_sem+1):
+			subjects = Subject.objects.filter(branch=student.branch, semester=sem)
+			attendance[sem] = [student.attendance.filter(subject=subject) or [Attendance(student=student, subject=subject)] for subject in subjects]
+			attendance[sem] = [AttendanceSerializer(att[0]).data for att in attendance[sem]]
+
+		response = {sem: attendance[sem] for sem in attendance if attendance[sem]}
+		response['student_id'] = student.user_id
+
+		return Response(response, status=status.HTTP_200_OK)
 
 
 	def list(self, request, *args, **kwargs):
@@ -157,7 +201,7 @@ class ParentViewSet(viewsets.ModelViewSet):
 
 			else:
 				req = self.initialize_request(request, *args, **kwargs)
-				kwargs['user_id'] = req.user.id
+				if kwargs['user_id'] == 'me': kwargs['user_id'] = req.user.id
 
 		except Exception as exc:
 			self.headers = self.default_response_headers

@@ -1,0 +1,96 @@
+body {
+  background-color: beige;
+  background-image: url("https://cdn.discordapp.com/attachments/673227660029329438/995765220582629526/Bangalore_Institute_of_Technology_logo_1.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh;
+}
+
+form {
+  color: #ffffff;
+  width: 400px;
+  background-color: rgba(49, 49, 49, 0.599);
+  position: absolute;
+
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  padding: 50px 35px;
+}
+form * {
+  font-family: "Poppins", sans-serif;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  outline: none;
+  border: none;
+}
+form h1 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 76px;
+  text-align: center;
+  color: whitesmoke;
+}
+
+label {
+  display: block;
+  color: #ffffff;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+option {
+  background-color: rgba(243, 243, 243, 0.616);
+  color: #000000;
+}
+
+select {
+  background-color: rgba(243, 243, 243, 0.616);
+  border-radius: 5px;
+  height: 40px;
+  color: #000000;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+input {
+  display: block;
+  height: 40px;
+  width: 100%;
+  background-color: rgba(243, 243, 243, 0.616);
+  border-radius: 5px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.actions {
+  display: flex;
+}
+
+button {
+  color: black;
+  margin: auto;
+  height: 40px;
+  width: 100px;
+  border-radius: 5px;
+  padding: 0 10px;
+}
+::placeholder {
+  color: #e5e5e5;
+}
+
+.UNwelcome {
+  color: #17181c;
+  margin-left: auto;
+}
+
+a {
+  text-decoration: none;
+  color: #17181c;
+}

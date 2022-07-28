@@ -1,0 +1,17 @@
+<h1>Student Details</h1>
+
+{% for msg in messages %}
+	{{ msg }}<br><br>
+{% endfor %}
+
+{% if student.image %}
+<img src="{{ student.image }}" alt="Profile picture for {{ student.name }}"><br>
+{% endif %}
+
+ID: {{ student.id }}<br>
+Name: {{ student.name }}<br>
+Email: {{ student.email }}<br>
+Phone: {% firstof student.phone '-' %}<br>
+Branch: {{ student.branch }}<br>
+Current Semester: {{ student.current_sem }}<br>
+<br><br>

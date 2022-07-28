@@ -7,6 +7,11 @@ from .common import root
 def login(id, password):
 	response = requests.post(url=f"{root}/admin/login/", data={'id': id, 'password': password})
 	dict = json.loads(response.text)
+	for cookie in response.cookies:
+		if cookie.name == 'token':
+			requests.session().cookies.set(cookie.name, cookie.value)
+			break
+
 	return dict, response.status_code, response.cookies
 
 def logout(token):
@@ -23,6 +28,8 @@ def reset_password(password_reset_token, new_password):
 	response = requests.post(url=f"{root}/admin/password_reset/", params={'token': password_reset_token}, data={'password': new_password})
 	dict = json.loads(response.text)
 	return dict, response.status_code
+
+
 
 # Manage Students:
 
@@ -93,5 +100,37 @@ def edit_staff_details(token, id, data, files=None):
 
 def delete_staff(token, id):
 	response = requests.delete(headers={'Authorization': 'Token ' + token}, url=f"{root}/staff/{id}/")
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+
+
+# Manage Parents:
+
+# Non-detail
+def get_all_parents(token, params, page=1):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/parent/?page={page}", params=params)
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+def create_new_parents(token, data, files=None):
+	response = requests.post(headers={'Authorization': 'Token ' + token}, url=f"{root}/parent/", data=data, files=files)
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+
+# Detail
+def get_parents_details(token, id):
+	response = requests.get(headers={'Authorization': 'Token ' + token}, url=f"{root}/parent/{id}")
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+def edit_parents_details(token, id, data, files=None):
+	response = requests.patch(headers={'Authorization': 'Token ' + token}, url=f"{root}/parent/{id}/", data=data, files=files)
+	dict = json.loads(response.text)
+	return dict, response.status_code
+
+def delete_parents(token, id):
+	response = requests.delete(headers={'Authorization': 'Token ' + token}, url=f"{root}/parent/{id}/")
 	dict = json.loads(response.text)
 	return dict, response.status_code

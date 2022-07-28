@@ -1,14 +1,75 @@
-<h1>Staff Data Portal</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<h2>Welcome {{ staff.name }}!</h2>
+    <link rel="stylesheet" href="{% static 'staff/home.css' %}" />
 
-<ul>
-	<li><a href="{% url 'staff_account' %}">Staff Account</a></li>
-	<li><a href="{% url 'staff_student_details' %}">View Student Details</a></li>
-	<li><a href="{% url 'staff_list_marks' %}">Manage Student Marks</a></li>
-	<li><a href="{% url 'staff_list_attendance' %}">Manage Student Attendance</a></li>
-</ul>
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <div class="welcomeMsg">
+      <h1>Staff Data Portal</h1>
+
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+
+      <div class="UNwelcome">
+        <h2>Welcome {{ staff.name }}!</h2>
+      </div>
+    </div> -->
+    <!-- arvind chat bot start-->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+      chat-icon="https:&#x2F;&#x2F;upload.wikimedia.org&#x2F;wikipedia&#x2F;en&#x2F;d&#x2F;d7&#x2F;Bangalore_Institute_of_Technology_logo.png"
+      intent="WELCOME"
+      chat-title="BIT Chatbot"
+      agent-id="ba0a214e-6935-4453-9158-f1bfecf59f72"
+      language-code="en"
+    ></df-messenger>
+    <!-- arvind chat bot end -->
+    <div class="welcomeMsg">
+      <h1>Staff Data Portal</h1>
+
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+
+      <div class="UNwelcome">
+        <h2 style="display: inline">Welcome {{ staff.name }}!</h2>
+        <a class href="{% url 'staff_logout' %}"
+          ><button class="logout">Logout</button></a
+        >
+      </div>
+    </div>
+
+    <hr />
+    <div class="allContent">
+      <ul>
+        <button class="fill">
+          <li><a href="{% url 'staff_account' %}">Staff Account</a></li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'staff_student_details' %}">View Student Details</a>
+          </li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'staff_list_marks' %}">Manage Student Marks</a>
+          </li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'staff_list_attendance' %}"
+              >Manage Student Attendance</a
+            >
+          </li>
+        </button>
+      </ul>
+    </div>
+  </body>
+</html>

@@ -5,6 +5,7 @@ urlpatterns = [
     path('', home_views.home, name='home'),
     path('student/', include('student.urls'), name='student'),
     path('staff/', include('staff.urls'), name='staff'),
-    path('parent/', home_views.parents, name='parent'),
+    path('parent/', include('parent.urls'), name='parent'),
     path('admin/', include('admin.urls'), name='admin'),
+    path('chatbot/', home_views.chatbot, name='chatbot'),
 ]

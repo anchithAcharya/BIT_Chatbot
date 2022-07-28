@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="{% static 'staff/home.css' %}" />
+
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <div class="welcomeMsg">
+      <h1>Staff Data Portal</h1>
+
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+
+      <div class="UNwelcome">
+        <h2>Welcome {{ parent.name }}!</h2>
+      </div>
+    </div> -->
+    <!-- arvind chat bot start-->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+      chat-icon="https:&#x2F;&#x2F;upload.wikimedia.org&#x2F;wikipedia&#x2F;en&#x2F;d&#x2F;d7&#x2F;Bangalore_Institute_of_Technology_logo.png"
+      intent="WELCOME"
+      chat-title="BIT Chatbot"
+      agent-id="ba0a214e-6935-4453-9158-f1bfecf59f72"
+      language-code="en"
+    ></df-messenger>
+    <!-- arvind chat bot end -->
+    <div class="welcomeMsg">
+      <h1>Parent Data Portal</h1>
+
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+
+      <div class="UNwelcome">
+        <h2 style="display: inline">Welcome {{ parent.name }}!</h2>
+        <a class href="{% url 'parent_logout' %}"
+          ><button class="logout">Logout</button></a
+        >
+      </div>
+    </div>
+
+    <hr />
+    <div class="allContent">
+      <ul>
+        <button class="fill">
+          <li><a href="{% url 'parent_account' %}">Parent Account</a></li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'parent_student_account' %}">Ward account</a>
+          </li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'parent_student_marks' %}">Ward marks</a>
+          </li>
+        </button>
+        <button class="fill">
+          <li>
+            <a href="{% url 'parent_student_attendance' %}">Ward attendance</a>
+          </li>
+        </button>
+      </ul>
+    </div>
+  </body>
+</html>

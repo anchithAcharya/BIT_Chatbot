@@ -1,13 +1,46 @@
-<h1>Admin Login</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'student/stulogin.css' %}" />
+  </head>
+  <body>
+    <div class="background">
+      <div class="shape"></div>
+      <div class="shape"></div>
+    </div>
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    <div class="prompts">
+      {% for msg in messages %} {{ msg }}<br /><br />
+      {% endfor %}
+    </div>
 
-<form action="{% url 'admin_login' %}" method="post" enctype="multipart/form-data">
-	{% csrf_token %}
-	{{ form.id }}<br>
-	{{ form.password }}<br>
-	<input type="submit" value="Login">
-</form>
-<a href="{% url 'admin_forgot_password' %}">Forgot password?</a>
+    <form
+      action="{% url 'admin_login' %}"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <h1>Admin Login</h1>
+      {% csrf_token %} {{ form.id }}<br />
+      {{ form.password }}<br />
+      <input type="submit" value="Login" class="login" />
+      <div>
+        <a href="{% url 'admin_forgot_password' %}">Forgot password?</a>
+        <!-- <button>Log In</button> -->
+        <center><a href="{% url 'home' %}">Home</a></center>
+      </div>
+    </form>
+  </body>
+</html>

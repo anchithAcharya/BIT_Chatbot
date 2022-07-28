@@ -1,15 +1,44 @@
-<h1>Student Account</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'student/account.css' %}" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: beige">
+    <!-- <h1>Student Account</h1> -->
 
-{% for msg in messages %}
-	{{ msg }}<br><br>
-{% endfor %}
+    <div class="welcomeMsg">
+      <h1>Student Account</h1>
 
-<form action="{% url 'student_account' %}", method="post", enctype="multipart/form-data">
+      <div class="UNwelcome">
+        <a class href="{% url 'student_logout' %}"
+          ><button class="logout">Logout</button></a
+        >
+      </div>
+    </div>
+
+    <hr />
+    {% for msg in messages %} {{ msg }}<br /><br />
+    {% endfor %}
+
+    <div class="verthr"></div>
+
+    <form
+      action="{% url 'student_account' %}"
+      ,
+      method="post"
+      ,
+      enctype="multipart/form-data"
+    >
 	{% csrf_token %}
-	<img src="{% firstof form.image.url student.image %}" alt="Profile picture for {{ student.name }}"><br>
+	<!-- <img src="{% firstof form.image.url student.image %}" alt="Profile picture for {{ student.name }}"><br>
 	{{ form.image }}<br>
-	{{ form.image.errors }}<br>
-	ID: {{ student.id }}<br>
+	{{ form.image.errors }}<br> -->
+	<center>ID: {{ student.id }}</center><br>
 	Name: {{ form.name }}<br>
 	{{ form.name.errors }}<br>
 	Email: {{ form.email }}<br>
@@ -18,5 +47,9 @@
 	{{ form.phone.errors }}<br>
 	Branch: {{ student.branch }}<br>
 	Current Semester: {{ student.current_sem }}<br><br>
-	<input type="submit" value="Edit">
-</form>
+      <div class="actions">
+        <button class="edit-button" type="submit">Edit</button>
+      </div>
+    </form>
+  </body>
+</html>

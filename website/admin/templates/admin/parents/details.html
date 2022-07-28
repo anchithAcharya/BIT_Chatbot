@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'admin/parents/details.css' %}" />
+	<title>Document</title>
+</head>
+<body style="background-color: beige;">
+	<h1>Parents Details</h1>
+<hr>
+	{% for msg in messages %}
+		{{ msg }}<br><br>
+	{% endfor %}
+	
+	{% if parent.image %}
+	<img src="{{ parent.image }}" alt="Profile picture for {{ parent.name }}">
+	{% endif %}
+	
+	<form action="{% url 'admin_parents_edit' parent.id %}", method="post">
+		{% csrf_token %}
+		<center>ID: {{ parent.id }}</center><br>
+		Name: {{ form.name }}<br>
+		{{ form.name.errors }}<br>
+		Email: {{ parent.email }}<br><br>
+		Phone: {% firstof parent.phone '-' %}<br><br>
+		Ward ID: {{ form.student }}<br>
+		{{ form.student.errors }}<br>
+		<div class="actions"><button type="submit" >Edit</button></div><br><br>
+		<center><input type="submit" formaction="{% url 'admin_parents_delete' parent.id %}" value="Delete Parent"></center>
+	</form>
+	
+</body>
+</html>

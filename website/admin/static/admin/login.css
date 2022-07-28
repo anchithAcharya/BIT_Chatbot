@@ -1,0 +1,44 @@
+body {
+  background-color: beige;
+}
+
+.stulogin_page {
+  background: white;
+  border: 1px solid gray;
+  border-radius: 16px;
+  padding: 40px;
+  position: absolute;
+  /* inset: 0 0 0 0; */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* .adLoginForm {
+    border: 1px solid gray;
+    border-radius: 6px;
+    padding: 20px 10px;
+    margin: 10px 10px;
+  }
+  .stulogin_page {
+  }
+  .adLoginHead {
+  }
+  .adLoginButton {
+    width: 100px;
+    margin: 10px auto;
+    border: 1px;
+    border-radius: 5px;
+    background: rgb(108, 108, 199);
+    padding: 10px 10px;
+  }
+  
+  .adLogBut {
+    text-align: center;
+  } */
+
+.forgotPassword {
+  width: 100%;
+  padding: 10px 10px;
+  text-align: right;
+}

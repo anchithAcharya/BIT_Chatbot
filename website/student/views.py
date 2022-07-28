@@ -283,7 +283,7 @@ def account(request):
 			image = data.pop('image', None)
 			files = {'image': (image.name, image.read(), image.content_type)} if image else {}
 
-			response, status_code = student_api.edit_account_details(token, student['id'], data, files)
+			response, status_code = student_api.edit_account_details(token, data, files)
 
 			if status_code == 200:
 				messages.success(request, "Account details updated successfully.")

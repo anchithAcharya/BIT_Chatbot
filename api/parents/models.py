@@ -24,7 +24,7 @@ class Parent(models.Model):
 	user = models.OneToOneField(get_user_model(), primary_key=True, on_delete=models.CASCADE, related_name='parent')
 	image = models.ImageField(default='default.jpg', upload_to='students/', null=True, blank=True)
 	student = models.ForeignKey(Student, to_field='user', on_delete=models.CASCADE, related_name='prnts', null=True)
-	phone = models.CharField(max_length=10, blank=True, default='', validators=[phone_validator])
+	phone = models.CharField(max_length=10, null=True, blank=True, default='', validators=[phone_validator])
 
 	def __str__(self):
 		return 'Parent ' + self.user.id
